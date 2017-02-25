@@ -1,4 +1,4 @@
-package com.example.amena.parkmatch;
+package cunycodes.parkmatch;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;

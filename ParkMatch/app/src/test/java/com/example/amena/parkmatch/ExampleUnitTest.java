@@ -1,4 +1,4 @@
-package com.example.amena.parkmatch;
+package cunycodes.parkmatch;
 
 import org.junit.Test;
 

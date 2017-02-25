@@ -1,4 +1,4 @@
-package com.example.amena.parkmatch;
+package cunycodes.parkmatch;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.example.amena.parkmatch", appContext.getPackageName());
+        assertEquals("cunycodes.parkmatch", appContext.getPackageName());
     }
 }
