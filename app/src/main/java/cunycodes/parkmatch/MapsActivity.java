@@ -57,12 +57,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         G_googleMap=googleMap;;
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -89,22 +83,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Get Current Location
         Location myLocation = locationManager.getLastKnownLocation(provider);
 
+        if(myLocation !=null) {
+            // Get latitude of the current location
+            double latitude = myLocation.getLatitude();
 
-        // Get latitude of the current location
-        double latitude = myLocation.getLatitude();
+            // Get longitude of the current location
+            double longitude = myLocation.getLongitude();
 
-        // Get longitude of the current location
-        double longitude = myLocation.getLongitude();
+            // Create a LatLng object for the current location
+            LatLng latLng = new LatLng(latitude, longitude);
 
-        // Create a LatLng object for the current location
-        LatLng latLng = new LatLng(latitude, longitude);
+            // Show the current location in Google Map
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
-        // Show the current location in Google Map
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-
-        // Zoom in the Google Map
-        googleMap.animateCamera(CameraUpdateFactory.zoomTo(17));
-        googleMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("You are here!"));
+            // Zoom in the Google Map
+            googleMap.animateCamera(CameraUpdateFactory.zoomTo(17));
+            googleMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("You are here!"));
+        }
     }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -162,28 +157,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Get Current Location
         Location myLocation = locationManager.getLastKnownLocation(provider);
+        if(myLocation !=null) {
+
+            // Get latitude of the current location
+            double latitude = myLocation.getLatitude();
+
+            // Get longitude of the current location
+            double longitude = myLocation.getLongitude();
+
+            latitude = latitude + Nextblock;
+
+            Nextblock = Nextblock + 0.0012;
 
 
-        // Get latitude of the current location
-        double latitude = myLocation.getLatitude();
+            // Create a LatLng object for the current location
+            LatLng latLng = new LatLng(latitude, longitude);
 
-        // Get longitude of the current location
-        double longitude = myLocation.getLongitude();
+            // Show the current location in Google Map
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
-        latitude=latitude+Nextblock;
-
-        Nextblock =Nextblock+ 0.0012;
-
-
-        // Create a LatLng object for the current location
-        LatLng latLng = new LatLng(latitude, longitude);
-
-        // Show the current location in Google Map
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-
-        // Zoom in the Google Map
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
-        mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("You are here!"));
-
+            // Zoom in the Google Map
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
+            mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("You are here!"));
+        }
     }
 }
