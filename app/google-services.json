@@ -1,0 +1,73 @@
+{
+  "project_info": {
+    "project_number": "364663379298",
+    "firebase_url": "https://parkmatch-f2929.firebaseio.com",
+    "project_id": "parkmatch-f2929",
+    "storage_bucket": "parkmatch-f2929.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:364663379298:android:f4615396d65b1c3c",
+        "android_client_info": {
+          "package_name": "cunycodes.parkmatch"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "364663379298-tgemhvri89ldnqi97u1ef1b60n73lgp9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAmuGe-83s6VzQQqdks3e7XVlPeyUaBToE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:364663379298:android:d99d0c7a40db57e6",
+        "android_client_info": {
+          "package_name": "com.santana.james.parkingfinder"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "364663379298-tgemhvri89ldnqi97u1ef1b60n73lgp9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAmuGe-83s6VzQQqdks3e7XVlPeyUaBToE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
