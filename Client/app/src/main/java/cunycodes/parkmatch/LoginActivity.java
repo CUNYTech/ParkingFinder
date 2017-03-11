@@ -3,6 +3,7 @@ package cunycodes.parkmatch;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
@@ -29,6 +30,12 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +45,7 @@ import static android.Manifest.permission.READ_CONTACTS;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -49,26 +56,26 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * A dummy authentication store containing known user names and passwords.
      * TODO: remove after connecting to a real authentication system.
      */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
+   /* private static final String[] DUMMY_CREDENTIALS = new String[]{
             "foo@example.com:hello", "bar@example.com:world"
-    };
+    };*/
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
+    private EditText EmailAddress;
+    private EditText Password;
+    private Button SignInButton;
+    private TextView textViewSignUp;
 
-    // UI references.
-    private AutoCompleteTextView mEmailView;
-    private EditText mPasswordView;
-    private View mProgressView;
-    private View mLoginFormView;
+    private ProgressDialog progressDialog;
+    private FirebaseAuth firebaseAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        /*mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
 
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -81,20 +88,75 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 }
                 return false;
             }
-        });
+        });*/
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                attemptLogin();
-            }
-        });
+        firebaseAuth = FirebaseAuth.getInstance();
+        //If user already signed in
+        if(firebaseAuth.getCurrentUser() != null)
+        {
+            finish();
+            startActivity(new Intent (getApplicationContext(), MapsActivity.class));
+        }
+        progressDialog = new ProgressDialog((this));
 
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
+        EmailAddress = (EditText) findViewById(R.id.email);
+        Password = (EditText) findViewById(R.id.password);
+
+        SignInButton = (Button) findViewById(R.id.signInButton);
+        textViewSignUp = (TextView) findViewById(R.id.textViewSignUp);
+
+        SignInButton.setOnClickListener(this);
+        textViewSignUp.setOnClickListener(this);
     }
 
+    public void onClick(View view)
+    {
+        if(view == SignInButton)
+        {
+            SignInUser();
+        }
+
+        if(view == textViewSignUp)
+        {
+            startActivity(new Intent (getApplicationContext(), Activity_register.class));
+        }
+    }
+
+    private void SignInUser() {
+
+        String UserEmail = EmailAddress.getText().toString().trim();
+        String UserPassword = Password.getText().toString().trim();
+
+        if (TextUtils.isEmpty(UserEmail)) {
+            //name is empty
+            Toast.makeText(this, "Please enter email", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (TextUtils.isEmpty(UserPassword)) {
+            //username is empty
+            Toast.makeText(this, "Please enter password", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+
+        //Passes all Validations then Register
+        progressDialog.setMessage("Signing in user...");
+        progressDialog.show();
+
+        firebaseAuth.signInWithEmailAndPassword(UserEmail, UserPassword).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                progressDialog.dismiss();
+                if (task.isSuccessful()) {
+                    finish();
+                    startActivity(new Intent (getApplicationContext(), MapsActivity.class));
+                } else {
+                    Toast.makeText(LoginActivity.this, "Sign in failed...please try again!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+    /*
     private void populateAutoComplete() {
         if (!mayRequestContacts()) {
             return;
@@ -128,6 +190,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     /**
      * Callback received when a permissions request has been completed.
      */
+    /*
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -144,6 +207,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
+    /*
     private void attemptLogin() {
         if (mAuthTask != null) {
             return;
@@ -204,6 +268,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     /**
      * Shows the progress UI and hides the login form.
      */
+    /*
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
@@ -295,6 +360,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
+    /*
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
         private final String mEmail;
@@ -354,5 +420,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         Intent myIntent = new Intent(LoginActivity.this, Activity_register.class);
         LoginActivity.this.startActivity(myIntent);
     }
+     */
 
 }

@@ -18,7 +18,7 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/etName"
+        android:id="@+id/editTextName"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:hint="Name" />
@@ -28,10 +28,10 @@
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
         android:ems="10"
-        android:layout_below="@+id/etName"
+        android:layout_below="@+id/editTextName"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/etUsername"
+        android:id="@+id/editTextUsername"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:hint="UserName" />
@@ -41,10 +41,10 @@
         android:layout_height="wrap_content"
         android:inputType="textEmailAddress"
         android:ems="10"
-        android:layout_below="@+id/etUsername"
+        android:layout_below="@+id/editTextUsername"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/etEmail"
+        android:id="@+id/editTextEmailAddress"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:hint="Email Address" />
@@ -54,10 +54,10 @@
         android:layout_height="wrap_content"
         android:inputType="textPassword"
         android:ems="10"
-        android:layout_below="@+id/etEmail"
+        android:layout_below="@+id/editTextEmailAddress"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/etPassword"
+        android:id="@+id/editTextPassword"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:hint="Password" />
@@ -66,11 +66,19 @@
         android:text="Register"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/etPassword"
-        android:id="@+id/bRegister"
+        android:layout_below="@+id/editTextPassword"
+        android:id="@+id/registerButton"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:onClick="takeMetoLogin"/>
+        android:layout_alignParentEnd="true"/>
+
+    <TextView
+        android:layout_margin="15dp"
+        android:textAlignment="center"
+        android:text="Already Registered? Sign in here"
+        android:id="@+id/textViewSignIn"
+        android:layout_below="@+id/registerButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </RelativeLayout>

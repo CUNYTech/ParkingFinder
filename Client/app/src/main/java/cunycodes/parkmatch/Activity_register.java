@@ -1,33 +1,126 @@
 package cunycodes.parkmatch;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
-public class Activity_register extends AppCompatActivity {
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 
+public class Activity_register extends AppCompatActivity implements View.OnClickListener {
+
+    private EditText editTextName;
+    private EditText editTextUsername;
+    private EditText editTextEmailAddress;
+    private EditText editTextPassword;
+    private Button registerButton;
+    private TextView textViewSignIn;
+
+    private ProgressDialog progressDialog;
+    private FirebaseAuth firebaseAuth;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        final EditText etName = (EditText) findViewById(R.id.etName);
-        final EditText etUsername = (EditText) findViewById(R.id.etUserName);
-        final EditText etPassword = (EditText) findViewById(R.id.etPassword);
-        final EditText etEmail = (EditText) findViewById(R.id.etEmail);
-        final Button bRegister = (Button) findViewById(R.id.bRegister);
+        // initialize firebase
+        firebaseAuth = FirebaseAuth.getInstance();
+        progressDialog = new ProgressDialog((this));
+        editTextName = (EditText) findViewById(R.id.editTextName);
+        editTextUsername = (EditText) findViewById(R.id.editTextUsername);
+        editTextPassword = (EditText) findViewById(R.id.editTextPassword);
+        editTextEmailAddress = (EditText) findViewById(R.id.editTextEmailAddress);
+        registerButton = (Button) findViewById(R.id.registerButton);
+        textViewSignIn = (TextView) findViewById(R.id.textViewSignIn);
 
-
+        registerButton.setOnClickListener(this);
+        textViewSignIn.setOnClickListener(this);
     }
 
-    public void takeMetoLogin(View view){
+    @Override
+    public void onClick(View view)
+    {
+        if(view == registerButton)
+        {
+            registerUser();
+        }
+
+        if(view == textViewSignIn)
+        {
+            Intent myIntent= new Intent (Activity_register.this,LoginActivity.class);
+            Activity_register.this.startActivity(myIntent);
+        }
+    }
+
+    private void registerUser()
+    {
+        String name = editTextName.getText().toString().trim();
+        String userName = editTextUsername.getText().toString().trim();
+        String email = editTextEmailAddress.getText().toString().trim();
+        String password = editTextPassword.getText().toString().trim();
+
+        if(TextUtils.isEmpty(name))
+        {
+            //name is empty
+            Toast.makeText(this, "Please enter name", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(TextUtils.isEmpty(userName))
+        {
+            //username is empty
+            Toast.makeText(this, "Please enter username", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(TextUtils.isEmpty(email))
+        {
+            //email is empty
+            Toast.makeText(this, "Please enter email", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(TextUtils.isEmpty(password))
+        {
+            //password is empty
+            Toast.makeText(this, "Please enter password", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        //Passes all Validations then Register
+        progressDialog.setMessage("Registering user...");
+        progressDialog.show();
+
+        firebaseAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                progressDialog.dismiss();
+                if(task.isSuccessful())
+            {
+
+                finish();
+                startActivity(new Intent (getApplicationContext(), MapsActivity.class));
+            }
+                else
+            {
+                progressDialog.dismiss();
+                Toast.makeText(Activity_register.this, "Registration failed...please try again!", Toast.LENGTH_SHORT).show();
+            }
+            }
+        });
+    }
+    /*public void takeMetoLogin(View view){
         Intent myIntent= new Intent (Activity_register.this,LoginActivity.class);
         Activity_register.this.startActivity(myIntent);
 
-    }
+    } */
 
 }
 
