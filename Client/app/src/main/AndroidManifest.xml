@@ -48,6 +48,9 @@
             android:label="@string/title_activity_maps" />
         <activity android:name=".Activity_register" />
         <activity android:name=".Activity_user_area"></activity>
+
+
+
     </application>
 
 </manifest>
