@@ -16,6 +16,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class Activity_register extends AppCompatActivity implements View.OnClickListener {
 
@@ -28,6 +30,8 @@ public class Activity_register extends AppCompatActivity implements View.OnClick
 
     private ProgressDialog progressDialog;
     private FirebaseAuth firebaseAuth;
+    private DatabaseReference mDatabase;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +39,7 @@ public class Activity_register extends AppCompatActivity implements View.OnClick
 
         // initialize firebase
         firebaseAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         progressDialog = new ProgressDialog((this));
         editTextName = (EditText) findViewById(R.id.editTextName);
         editTextUsername = (EditText) findViewById(R.id.editTextUsername);
@@ -64,9 +69,9 @@ public class Activity_register extends AppCompatActivity implements View.OnClick
 
     private void registerUser()
     {
-        String name = editTextName.getText().toString().trim();
-        String userName = editTextUsername.getText().toString().trim();
-        String email = editTextEmailAddress.getText().toString().trim();
+        final String name = editTextName.getText().toString().trim();
+        final String userName = editTextUsername.getText().toString().trim();
+        final String email = editTextEmailAddress.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
 
         if(TextUtils.isEmpty(name))
@@ -105,8 +110,10 @@ public class Activity_register extends AppCompatActivity implements View.OnClick
                 if(task.isSuccessful())
             {
 
-                finish();
+                //finish();
+                this.writeToDatabase (name, userName, email);
                 startActivity(new Intent (getApplicationContext(), MapsActivity.class));
+
             }
                 else
             {
@@ -114,7 +121,15 @@ public class Activity_register extends AppCompatActivity implements View.OnClick
                 Toast.makeText(Activity_register.this, "Registration failed...please try again!", Toast.LENGTH_SHORT).show();
             }
             }
+
+            private void writeToDatabase (String name, String userName, String email) {
+                User newUser = new User (name, userName, email);
+
+                mDatabase.child("users").child(userName).setValue(newUser);
+            }
         });
+
+
     }
     /*public void takeMetoLogin(View view){
         Intent myIntent= new Intent (Activity_register.this,LoginActivity.class);

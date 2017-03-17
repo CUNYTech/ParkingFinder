@@ -20,11 +20,13 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-
+    private DatabaseReference mDatabase;
     //Also add this to the first line in your MainActivity so you can receive results–
     private final int REQUEST_CODE_PLACEPICKER = 1;
 
@@ -32,6 +34,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -221,8 +226,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Get longitude of the current car location
         double longitude = placeSelected.getLatLng().longitude;
 
+        /////////////////////////////////////////////
+
+        this.writeToDatabase (latitude, longitude);
+
+
+        ///////////////////////////////////////////////
+
         TextView enterCurrentLocation = (TextView) findViewById(R.id.Leaving);
         enterCurrentLocation.setText("Your Car is at "+name + ", " + address + ", coordinates= " +latitude +", " +longitude);
+    }
+
+    private void writeToDatabase(double longitude, double latitude) {
+
+        AvailableSpot newAvailableSpot = new AvailableSpot(longitude, latitude);
+        mDatabase.child("available_spots").setValue(newAvailableSpot);
     }
 
     //And we also need to override a function so in the main activity, we will be able to receive results —
