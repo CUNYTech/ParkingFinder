@@ -69,9 +69,9 @@ public class Activity_register extends AppCompatActivity implements View.OnClick
 
     private void registerUser()
     {
-        final String name = editTextName.getText().toString().trim();
-        final String userName = editTextUsername.getText().toString().trim();
-        final String email = editTextEmailAddress.getText().toString().trim();
+        String name = editTextName.getText().toString().trim();
+        String userName = editTextUsername.getText().toString().trim();
+        String email = editTextEmailAddress.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
 
         if(TextUtils.isEmpty(name))
