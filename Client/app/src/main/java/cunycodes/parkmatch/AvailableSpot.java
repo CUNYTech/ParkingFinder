@@ -4,6 +4,8 @@ package cunycodes.parkmatch;
  * Created by James on 3/15/2017.
  */
 
+//comment
+
 public class AvailableSpot {
     private double longitude, latitude;
 
