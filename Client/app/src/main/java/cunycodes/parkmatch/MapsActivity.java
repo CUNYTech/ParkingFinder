@@ -239,8 +239,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void writeToDatabase(double longitude, double latitude) {
 
+        String key = mDatabase.child("available_spots").push().getKey();
         AvailableSpot newAvailableSpot = new AvailableSpot(longitude, latitude);
-        mDatabase.child("available_spots").setValue(newAvailableSpot);
+        
+        mDatabase.child("available_spots").child(key).setValue(newAvailableSpot);
     }
 
     //And we also need to override a function so in the main activity, we will be able to receive results —
