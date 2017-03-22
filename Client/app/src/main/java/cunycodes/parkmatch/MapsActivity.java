@@ -1,6 +1,7 @@
 package cunycodes.parkmatch;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
@@ -8,9 +9,14 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
@@ -23,12 +29,70 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+import java.io.File;
+
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private DatabaseReference mDatabase;
     //Also add this to the first line in your MainActivity so you can receive results–
     private final int REQUEST_CODE_PLACEPICKER = 1;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        //return true;
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()){
+            case R.id.nav_account:
+                Toast.makeText(MapsActivity.this, "Account Settings", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.nav_settings:
+                Toast.makeText(MapsActivity.this, "Settings", Toast.LENGTH_LONG).show();
+                return true;
+            case R.id.nav_logout:
+
+                File cache = getCacheDir();
+                File appDir = new File(cache.getParent());
+                if (appDir.exists()) {
+                    String[] children = appDir.list();
+                    for (String s : children) {
+                        if (!s.equals("lib")) {
+                            deleteDir(new File(appDir, s));
+                            Log.i("TAG", "**************** File /data/data/APP_PACKAGE/" + s + " DELETED *******************");
+                        }
+                    }
+                }
+
+
+                Intent intent = new Intent(MapsActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+                System.exit(0);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public static boolean deleteDir(File dir)
+        {
+            if (dir != null && dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i = 0; i < children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+            return dir.delete();
+        }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
