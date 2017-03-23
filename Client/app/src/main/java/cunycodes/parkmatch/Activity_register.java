@@ -69,9 +69,9 @@ public class Activity_register extends AppCompatActivity implements View.OnClick
 
     private void registerUser()
     {
-        final String name = editTextName.getText().toString().trim();
-        final String userName = editTextUsername.getText().toString().trim();
-        final String email = editTextEmailAddress.getText().toString().trim();
+        String name = editTextName.getText().toString().trim();
+        String userName = editTextUsername.getText().toString().trim();
+        String email = editTextEmailAddress.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
 
         if(TextUtils.isEmpty(name))
@@ -111,7 +111,7 @@ public class Activity_register extends AppCompatActivity implements View.OnClick
             {
 
                 //finish();
-                this.writeToDatabase (name, userName, email);
+                this.writeToDatabase (firebaseAuth.getCurrentUser());
                 startActivity(new Intent (getApplicationContext(), MapsActivity.class));
 
             }
@@ -122,10 +122,15 @@ public class Activity_register extends AppCompatActivity implements View.OnClick
             }
             }
 
-            private void writeToDatabase (String name, String userName, String email) {
-                User newUser = new User (name, userName, email);
+            private void writeToDatabase (FirebaseUser currentUser) {
+                String name = editTextName.getText().toString().trim();
+                String userName = editTextUsername.getText().toString().trim();
+                String email = editTextEmailAddress.getText().toString().trim();
+                String id = currentUser.getUid();
 
-                mDatabase.child("users").child(userName).setValue(newUser);
+                User newUser = new User (name, userName, email, id);
+
+                mDatabase.child("users").child(id).setValue(newUser);
             }
         });
 
