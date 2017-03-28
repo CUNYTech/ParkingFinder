@@ -306,7 +306,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         enterCurrentLocation.setText("Your Car is at "+name + ", " + address + ", coordinates= " +latitude +", " +longitude);
     }
 
-    private void writeToDatabase(double longitude, double latitude) {
+    private void writeToDatabase(double latitude, double longitude) {
         String time_leaving = "10:15"; //CHANGE THIS TO GET TIME WHEN USER WANTS TO LEAVE
         LeaveSpaceRequest leave_space = new LeaveSpaceRequest(new GeoLocation(latitude, longitude), time_leaving);
     }
