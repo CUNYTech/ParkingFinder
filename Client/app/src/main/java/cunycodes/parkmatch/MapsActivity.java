@@ -1,14 +1,12 @@
 package cunycodes.parkmatch;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -17,7 +15,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -35,7 +32,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private GoogleMap mMap;
     private DatabaseReference mDatabase;
-    //a varuable in order to receive results for pacePicker
+
+    //a variable in order to receive results for pacePicker
+   
+
     private final int REQUEST_CODE_PLACEPICKER = 1;
 
     // so we can switch from gotoParking to displaySelectedPlaceFromPlacePicker  when calling onActivityResult
@@ -83,8 +83,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public static boolean deleteDir(File dir)
-        {
-            if (dir != null && dir.isDirectory()) {
+    {
+        if (dir != null && dir.isDirectory()) {
             String[] children = dir.list();
             for (int i = 0; i < children.length; i++) {
                 boolean success = deleteDir(new File(dir, children[i]));
@@ -93,8 +93,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
         }
-            return dir.delete();
-        }
+        return dir.delete();
+    }
 
 
     @Override
@@ -250,24 +250,33 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         ///////////////////////////////////////////////
 
+
+
         TextView enterCurrentLocation = (TextView) findViewById(R.id.SearchParking);
         enterCurrentLocation.setText("Found one near "+ address );
             latitude = latitude + Nextblock;
 
-            Nextblock = Nextblock + 0.0012;
+
+        TextView enterCurrentLocation = (TextView) findViewById(R.id.SearchParking);
+        enterCurrentLocation.setText("Found one near "+ address );
+        latitude = latitude + Nextblock;
+
+        Nextblock = Nextblock + 0.0012;
 
 
-            // Create a LatLng object for the current location
-            LatLng latLng = new LatLng(latitude, longitude);
 
-            mMap = G_googleMap;
-            // Show the current location in Google Map
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        // Create a LatLng object for the current location
+        LatLng latLng = new LatLng(latitude, longitude);
 
-            // Zoom in the Google Map
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
-            mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Open Parking Spot Here"));
-        }
+        mMap = G_googleMap;
+        // Show the current location in Google Map
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+
+        // Zoom in the Google Map
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
+        mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Open Parking Spot Here"));
+    }
+
 
 
 
@@ -291,7 +300,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         String address = placeSelected.getAddress().toString();
 
         //ger longitude in as an string; maybe useful later
-       // String longitude= placeSelected.getLatLng().toString();
+        // String longitude= placeSelected.getLatLng().toString();
 
         // Get latitude of the currentcar location
         double latitude = placeSelected.getLatLng().latitude;
@@ -307,7 +316,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         ///////////////////////////////////////////////
 
         TextView enterCurrentLocation = (TextView) findViewById(R.id.Leaving);
-        enterCurrentLocation.setText("Your Car is at "+name + ", " + address + ", coordinates= " +latitude +", " +longitude);
+       //enterCurrentLocation.setText("Your Car is at "+name + ", " + address + ", coordinates= " +latitude +", " +longitude);
+        String buttonAddress = "Your car is at " + address;        enterCurrentLocation.setText(buttonAddress);
     }
 
     private void writeToDatabase(double longitude, double latitude) {
@@ -329,14 +339,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected  void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_PLACEPICKER && resultCode == RESULT_OK) {
             if(ButtonSwitcher==1){
-            displaySelectedPlaceFromPlacePicker(data);}
+
+                displaySelectedPlaceFromPlacePicker(data);}
 
             if(ButtonSwitcher==2){
                 gotoParking(data);}
-            }
 
         }
+
     }
+
 
 
 
