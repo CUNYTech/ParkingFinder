@@ -308,7 +308,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void writeToDatabase(double longitude, double latitude) {
         String time_leaving = "10:15"; //CHANGE THIS TO GET TIME WHEN USER WANTS TO LEAVE
-        LeaveSpaceRequest leave_space = new LeaveSpaceRequest(new GeoLocation(latitude, longitude), String time_leaving);
+        LeaveSpaceRequest leave_space = new LeaveSpaceRequest(new GeoLocation(latitude, longitude), time_leaving);
     }
 
 
