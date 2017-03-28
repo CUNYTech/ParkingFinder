@@ -15,19 +15,19 @@ import com.google.firebase.auth.FirebaseUser;
 public class LeaveSpaceRequest {
         /* Constructor takes the latitude and longitude of the user's car stored in a GeoLocation object. */
         public LeaveSpaceRequest(GeoLocation car_location, String time_leaving) {
-            rootRef = FirebaseDatabase.getInstance().getReference();
+            geo_ref = FirebaseDatabase.getInstance().getReference(GEO_FIRE_DB);
             auth = FirebaseAuth.getInstance();
-            FirebaseUser user = auth.getCurrentUser();
-            user_id = user.getUid();
-            geoFire = new GeoFire(rootRef);
+            user = auth.getCurrentUser();
+            String user_id = user.getUid();
+            geoFire = new GeoFire(geo_ref);  
             putEmptySpaceInDatabase(car_location, user_id, time_leaving);
         }
 
         private static final String GEO_FIRE_DB = "https://parkmatch-3a7b4.firebaseio.com/available_spots";
         private GeoFire geoFire;
         private FirebaseAuth auth;
-        private DatabaseReference rootRef;
-        private String user_id;
+        private DatabaseReference geo_ref;
+        private FirebaseUser user;
 
         /* Store this car location into database using username as key */
         private void putEmptySpaceInDatabase(GeoLocation car_location, String username, String time_leaving) {
