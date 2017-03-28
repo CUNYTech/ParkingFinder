@@ -43,6 +43,6 @@ public class LeaveSpaceRequest {
                 }
             });
             // Add time when this spot will be empty (time_leaving)
-            
+
         }
 }
