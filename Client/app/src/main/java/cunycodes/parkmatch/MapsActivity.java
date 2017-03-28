@@ -29,13 +29,14 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import com.firebase.geofire.GeoLocation;
 import java.io.File;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private DatabaseReference mDatabase;
-    //a varuable in order to receive results for pacePicker
+    //a variable in order to receive results for pacePicker
     private final int REQUEST_CODE_PLACEPICKER = 1;
 
     // so we can switch from gotoParking to displaySelectedPlaceFromPlacePicker  when calling onActivityResult
@@ -70,7 +71,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         }
                     }
                 }
-
 
                 Intent intent = new Intent(MapsActivity.this, LoginActivity.class);
                 startActivity(intent);
@@ -121,7 +121,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-
         //sets up button for PlacePicker Leaving
         Button gotoParkingButton = (Button) findViewById(R.id.SearchParking);
         gotoParkingButton.setOnClickListener(new View.OnClickListener() {
@@ -131,10 +130,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 startPlacePickerActivity();
             }
         });
-
-
     }
-
 
     /**
      * Manipulates the map once available.
@@ -311,9 +307,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void writeToDatabase(double longitude, double latitude) {
-
-        AvailableSpot newAvailableSpot = new AvailableSpot(longitude, latitude);
-        mDatabase.child("available_spots").setValue(newAvailableSpot);
+        // String time = Get time_leaving
+        LeaveSpaceRequest leave_space = new LeaveSpaceRequest(new GeoLocation(latitude, longitude), String time_leaving);
     }
 
 
