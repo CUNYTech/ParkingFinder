@@ -15,7 +15,7 @@
     <ImageView
         android:layout_width="110dp"
         android:layout_height="110dp"
-        android:src="@drawable/parkicon" />
+        android:src="@drawable/mainicon" />
 
 
     <android.support.design.widget.TextInputLayout

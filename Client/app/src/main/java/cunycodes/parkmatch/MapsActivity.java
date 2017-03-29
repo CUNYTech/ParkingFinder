@@ -34,12 +34,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private DatabaseReference mDatabase;
 
     //a variable in order to receive results for pacePicker
-   
+
 
     private final int REQUEST_CODE_PLACEPICKER = 1;
 
     // so we can switch from gotoParking to displaySelectedPlaceFromPlacePicker  when calling onActivityResult
-    int ButtonSwitcher=0;
+    int ButtonSwitcher = 0;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -50,7 +50,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.nav_account:
                 Toast.makeText(MapsActivity.this, "Account Settings", Toast.LENGTH_SHORT).show();
                 return true;
@@ -82,8 +82,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    public static boolean deleteDir(File dir)
-    {
+    public static boolean deleteDir(File dir) {
         if (dir != null && dir.isDirectory()) {
             String[] children = dir.list();
             for (int i = 0; i < children.length; i++) {
@@ -116,7 +115,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         LeavingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ButtonSwitcher=1;
+                ButtonSwitcher = 1;
                 startPlacePickerActivity();
             }
         });
@@ -127,7 +126,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         gotoParkingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ButtonSwitcher=2;
+                ButtonSwitcher = 2;
                 startPlacePickerActivity();
             }
         });
@@ -148,11 +147,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     GoogleMap G_googleMap;
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
         //makes maps a global variable for later use
-        G_googleMap=googleMap;;
+        G_googleMap = googleMap;
+        ;
         mMap = googleMap;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -181,7 +182,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Get Current Location
         Location myLocation = locationManager.getLastKnownLocation(provider);
 
-        if(myLocation !=null) {
+        if (myLocation != null) {
             // Get latitude of the current location
             double latitude = myLocation.getLatitude();
 
@@ -226,10 +227,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }*/
     // place a marker in a loction close to the users current position
 
-    double Nextblock= 0.0012;
+    double Nextblock = 0.0012;
+
     public void gotoParking(Intent data) {
 
-        Place placeSelected =  PlacePicker.getPlace(this, data);
+        Place placeSelected = PlacePicker.getPlace(this, data);
 
         String name = placeSelected.getName().toString();
         String address = placeSelected.getAddress().toString();
@@ -245,24 +247,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         /////////////////////////////////////////////
 
-        this.LookingForSpotsNear (latitude, longitude);
+        this.LookingForSpotsNear(latitude, longitude);
 
 
         ///////////////////////////////////////////////
 
 
-
         TextView enterCurrentLocation = (TextView) findViewById(R.id.SearchParking);
-        enterCurrentLocation.setText("Found one near "+ address );
-            latitude = latitude + Nextblock;
-
-
-        TextView enterCurrentLocation = (TextView) findViewById(R.id.SearchParking);
-        enterCurrentLocation.setText("Found one near "+ address );
+        enterCurrentLocation.setText("Found one near " + address);
         latitude = latitude + Nextblock;
 
         Nextblock = Nextblock + 0.0012;
-
 
 
         // Create a LatLng object for the current location
@@ -276,8 +271,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
         mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Open Parking Spot Here"));
     }
-
-
 
 
     //Now we need to implement startPlacePickerActivity() and a couple other functions–
@@ -294,7 +287,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void displaySelectedPlaceFromPlacePicker(Intent data) {
-        Place placeSelected =  PlacePicker.getPlace(this, data);
+        Place placeSelected = PlacePicker.getPlace(this, data);
 
         String name = placeSelected.getName().toString();
         String address = placeSelected.getAddress().toString();
@@ -310,14 +303,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         /////////////////////////////////////////////
 
-        this.writeToDatabase (latitude, longitude);
+        this.writeToDatabase(latitude, longitude);
 
 
         ///////////////////////////////////////////////
 
         TextView enterCurrentLocation = (TextView) findViewById(R.id.Leaving);
-       //enterCurrentLocation.setText("Your Car is at "+name + ", " + address + ", coordinates= " +latitude +", " +longitude);
-        String buttonAddress = "Your car is at " + address;        enterCurrentLocation.setText(buttonAddress);
+        //enterCurrentLocation.setText("Your Car is at "+name + ", " + address + ", coordinates= " +latitude +", " +longitude);
+        String buttonAddress = "Your car is at " + address;
+        enterCurrentLocation.setText(buttonAddress);
     }
 
     private void writeToDatabase(double longitude, double latitude) {
@@ -325,7 +319,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         AvailableSpot newAvailableSpot = new AvailableSpot(longitude, latitude);
         mDatabase.child("available_spots").setValue(newAvailableSpot);
     }
-
 
 
     private void LookingForSpotsNear(double longitude, double latitude) {
@@ -336,18 +329,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //And we also need to override a function so in the main activity, we will be able to receive results —
     @Override
-    protected  void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_PLACEPICKER && resultCode == RESULT_OK) {
-            if(ButtonSwitcher==1){
+            if (ButtonSwitcher == 1) {
 
-                displaySelectedPlaceFromPlacePicker(data);}
+                displaySelectedPlaceFromPlacePicker(data);
+            }
 
-            if(ButtonSwitcher==2){
-                gotoParking(data);}
+            if (ButtonSwitcher == 2) {
+                gotoParking(data);
+            }
 
         }
 
     }
+}
 
 
 
