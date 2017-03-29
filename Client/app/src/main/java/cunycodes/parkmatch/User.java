@@ -6,7 +6,7 @@ package cunycodes.parkmatch;
 public class User {
     private String name, userName, email, id;
 
-    public User(String name, String userName, String email, String id) {
+    public User() {
 
     }
 
