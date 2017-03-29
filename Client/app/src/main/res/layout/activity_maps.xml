@@ -36,6 +36,15 @@
             style="?android:textAppearanceSmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+
+            android:background="@android:color/holo_orange_light"
+            android:onClick="SearchParking"
+            tools:layout_conversion_absoluteHeight="48dp"
+            tools:layout_conversion_absoluteWidth="210dp"
+            tools:layout_conversion_absoluteX="0dp"
+            tools:layout_conversion_absoluteY="16dp"
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="16dp"
             android:layout_alignParentBottom="true"
             android:layout_marginTop="16dp"
             android:text="I need a spot"
@@ -54,16 +63,21 @@
             android:visibility="invisible" />
 
         <Button
-        android:id="@+id/Leaving"
-        style="?android:textAppearanceSmall"
-        android:layout_width="match_parent"
+
+            android:id="@+id/Leaving"
+            style="?android:textAppearanceSmall"
+            android:layout_width="match_parent"
+
             android:layout_height="wrap_content"
+
+            android:background="@android:color/holo_orange_light"
+
+            android:text="Leaving"
+            android:textStyle="bold"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_marginBottom="51dp"
-            android:text="Leaving"
-            android:textStyle="bold"/>
+            android:layout_marginBottom="50dp" />
         
     </RelativeLayout>
 
