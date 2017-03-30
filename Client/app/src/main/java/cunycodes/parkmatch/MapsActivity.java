@@ -1,9 +1,5 @@
 package cunycodes.parkmatch;
 
-import android.app.Dialog;
-import android.app.DialogFragment;
-import android.app.TimePickerDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
@@ -11,23 +7,14 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-
-import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.AlertDialog;
-import android.text.format.DateFormat;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.TimePicker;
-
-
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -39,18 +26,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.Calendar;
+import java.io.File;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-
-    private static DatabaseReference mDatabase;
-    //Also add this to the first line in your MainActivity so you can receive results–
-    private final int REQUEST_CODE_PLACEPICKER = 1;
-    public static int hourLeaving, minLeaving;
-    public static double latitude, longitude;
-
+    private DatabaseReference mDatabase;
 
     //a variable in order to receive results for pacePicker
 
@@ -127,14 +108,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-
-        //sets up button Leaving
-        Button gotoButton = (Button) findViewById(R.id.Leaving);
-        gotoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-//////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////
 
         //sets up button for PlacePicker Leaving
         Button LeavingButton = (Button) findViewById(R.id.Leaving);
@@ -159,7 +133,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     }
-
 
 
     /**
@@ -233,6 +206,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
    /* public void SearchPlace(View view){
         EditText Loacation_tf = (EditText)findViewById(R.id.address);
         String location = Loacation_tf.getText().toString();
+
         List<android.location.Address> addressList =null;
         if(location != null || !location.equals("")){
             Geocoder geocoder=new Geocoder(this);
@@ -241,16 +215,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
             android.location.Address address= addressList.get(0);
+
             LatLng BoB =new LatLng(address.getLatitude(),address.getLongitude());
             mMap.addMarker(new MarkerOptions().position(BoB).title("Marker BoB"));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(BoB));
             mMap.animateCamera(CameraUpdateFactory.zoomTo(10));
         }
+
     }*/
     // place a marker in a loction close to the users current position
 
-double Nextblock = 0.0012;
+    double Nextblock = 0.0012;
 
     public void gotoParking(Intent data) {
 
@@ -319,24 +296,17 @@ double Nextblock = 0.0012;
         // String longitude= placeSelected.getLatLng().toString();
 
         // Get latitude of the currentcar location
-        latitude = placeSelected.getLatLng().latitude;
+        double latitude = placeSelected.getLatLng().latitude;
 
         // Get longitude of the current car location
-        longitude = placeSelected.getLatLng().longitude;
+        double longitude = placeSelected.getLatLng().longitude;
 
-        TextView enterCurrentLocation = (TextView) findViewById(R.id.Leaving);
-        enterCurrentLocation.setText("Your Car is at "+name + ", " + address + ", coordinates= " +latitude +", " +longitude);
+        /////////////////////////////////////////////
+
+        this.writeToDatabase(latitude, longitude);
 
 
-/////////////////////////////////////////////
-
-        //Time picker display button made visible
-        Button displayTimePickerBtn = (Button) findViewById(R.id.displayTimePicker);
-        if(placeSelected.isDataValid()) {
-            displayTimePickerBtn.setVisibility(View.VISIBLE);
-        }
-/////////////////////////////////////////////
-
+        ///////////////////////////////////////////////
 
         TextView enterCurrentLocation = (TextView) findViewById(R.id.Leaving);
         //enterCurrentLocation.setText("Your Car is at "+name + ", " + address + ", coordinates= " +latitude +", " +longitude);
@@ -344,50 +314,13 @@ double Nextblock = 0.0012;
         enterCurrentLocation.setText(buttonAddress);
     }
 
-    //Called when button to select time leaving is clicked
-    public void showTimePickerDialog(View v) {
-        TimePickerFragment newFragment = new TimePickerFragment();
-        newFragment.show(getFragmentManager(), "timePicker");
-        //Sets 'choose time' button to invisible
-        Button displayTimePickerBtn = (Button) findViewById(R.id.displayTimePicker);
-        displayTimePickerBtn.setVisibility(View.INVISIBLE);
+    private void writeToDatabase(double longitude, double latitude) {
+
+        AvailableSpot newAvailableSpot = new AvailableSpot(longitude, latitude);
+        mDatabase.child("available_spots").setValue(newAvailableSpot);
     }
 
-    //Time picker class
-    public static class TimePickerFragment extends DialogFragment
-            implements TimePickerDialog.OnTimeSetListener {
 
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-
-            // Use the current time as the default values for the picker
-            final Calendar c = Calendar.getInstance();
-            int hour = c.get(Calendar.HOUR_OF_DAY);
-            int minute = c.get(Calendar.MINUTE);
-
-            // Create a new instance of TimePickerDialog and return it
-            return new TimePickerDialog(getActivity(), R.style.DialogTheme, this, hour, minute,
-                    DateFormat.is24HourFormat(getActivity()));
-        }
-
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            //System.out.println("TIMEPICKER time chosen: "+ hourOfDay+":"+minute);
-            hourLeaving = hourOfDay;
-            minLeaving = minute;
-            String timeLeaving = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
-            writeToDatabase (latitude, longitude, hourLeaving, minLeaving);
-         }
-    }
-
-    public static void writeToDatabase(double longitude, double latitude, int hourLeaving, int minLeaving) {
-
-        String key = mDatabase.child("available_spots").push().getKey();
-        AvailableSpot newAvailableSpot = new AvailableSpot(longitude, latitude, hourLeaving, minLeaving);
-
-        mDatabase.child("available_spots").child(key).setValue(newAvailableSpot);
-    }
-          
     private void LookingForSpotsNear(double longitude, double latitude) {
 
         AvailableSpot newAvailableSpot = new AvailableSpot(longitude, latitude);
@@ -411,4 +344,7 @@ double Nextblock = 0.0012;
 
     }
 }
+
+
+
 
