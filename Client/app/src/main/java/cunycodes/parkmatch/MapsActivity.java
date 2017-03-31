@@ -31,6 +31,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import com.firebase.geofire.GeoLocation;
 import java.io.File;
+import java.util.Date;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -307,8 +308,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void writeToDatabase(double longitude, double latitude) {
-        // String time = Get time_leaving
-        LeaveSpaceRequest leave_space = new LeaveSpaceRequest(new GeoLocation(latitude, longitude), String time_leaving);
+        String time = "time leaving string/change this"; 
+        GeoLocation x = new GeoLocation(latitude, longitude);
+        LeaveSpaceRequest leave_space = new LeaveSpaceRequest(x, time);
     }
 
 
