@@ -27,7 +27,7 @@ public class AvailableSpot {
 
     }
 
-    public AvailableSpot (double longitude, double latitude, int hourLeaving, int minLeaving) {
+    public AvailableSpot (double latitude, double longitude, int hourLeaving, int minLeaving) {
         //PASS AS LATITUDE AND LONGITUDE not vice versa
         emptySpot = new GeoLocation(latitude, longitude);
         setUserId();

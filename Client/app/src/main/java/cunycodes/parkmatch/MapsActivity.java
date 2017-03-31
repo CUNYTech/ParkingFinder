@@ -246,10 +246,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // String longitude= placeSelected.getLatLng().toString();
 
         // Get latitude of the currentcar location
-        double latitude = placeSelected.getLatLng().latitude;
+        latitude = placeSelected.getLatLng().latitude;
 
         // Get longitude of the current car location
-        double longitude = placeSelected.getLatLng().longitude;
+        longitude = placeSelected.getLatLng().longitude;
 
         /////////////////////////////////////////////
 
@@ -308,10 +308,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // String longitude= placeSelected.getLatLng().toString();
 
         // Get latitude of the currentcar location
-        double latitude = placeSelected.getLatLng().latitude;
+        latitude = placeSelected.getLatLng().latitude;
 
         // Get longitude of the current car location
-        double longitude = placeSelected.getLatLng().longitude;
+        longitude = placeSelected.getLatLng().longitude;
 
 /////////////////////////////////////////////
 
@@ -361,14 +361,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             hourLeaving = hourOfDay;
             minLeaving = minute;
             String timeLeaving = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
-            writeToDatabase (latitude, longitude, hourLeaving, minLeaving);
+            MapsActivity write = new MapsActivity();
+            write.writeToDatabase (MapsActivity.latitude, MapsActivity.longitude, hourLeaving, minLeaving);
         }
     }
 
-    public static void writeToDatabase(double longitude, double latitude, int hour, int min) {
+    public void writeToDatabase(double latitude, double longitude, int hour, int min) {
 
         if (leavingClicked.equals(true)) {
-            AvailableSpot newAvailableSpot = new AvailableSpot(longitude, latitude, hour, min);
+            AvailableSpot newAvailableSpot = new AvailableSpot(latitude, longitude, hour, min);
              //String key = mDatabase.child("available_spots").push().getKey();
             //mDatabase.child("available_spots").child(key).setValue(newAvailableSpot);
         }
