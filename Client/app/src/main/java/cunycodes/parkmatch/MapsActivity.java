@@ -1,5 +1,7 @@
 package cunycodes.parkmatch;
 
+import android.app.AlertDialog;
+import android.app.TimePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
@@ -256,7 +258,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         //this.LookingForSpotsNear(latitude, longitude);
 
         Button displayTimePicker = (Button) findViewById(R.id.displayTimePicker);
-        displayTimePicker.setText("Enter Time Parking");
+        displayTimePicker.setText("Select Time Parking");
         displayTimePicker.setVisibility(View.VISIBLE);
 
 
@@ -335,6 +337,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         //Sets 'choose time' button to invisible
         Button displayTimePickerBtn = (Button) findViewById(R.id.displayTimePicker);
         displayTimePickerBtn.setVisibility(View.INVISIBLE);
+	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Your information has been recorded").setTitle("Thank you!");
+        builder.show();
     }
 
     //Time picker class
