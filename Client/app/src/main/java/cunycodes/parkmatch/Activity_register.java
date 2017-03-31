@@ -131,7 +131,7 @@ public class Activity_register extends AppCompatActivity implements View.OnClick
 
                 User newUser = new User (name, userName, email, id);
 
-                mDatabase.child("users").child(id).setValue(newUser);
+                mDatabase.child("Registered users").child(userName).setValue(newUser);
             }
         });
 
