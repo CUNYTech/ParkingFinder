@@ -164,7 +164,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //makes maps a global variable for later use
         G_googleMap = googleMap;
-        ;
         mMap = googleMap;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

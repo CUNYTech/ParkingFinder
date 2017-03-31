@@ -1,17 +1,16 @@
 package cunycodes.parkmatch;
 
 public class User {
-    private String name, userName, email, id;
+    private String name, userName, email;
 
     public User() {
 
     }
 
-    public User (String name, String userName, String email, String id) {
+    public User (String name, String userName, String email) {
         this.name = name;
         this.userName = userName;
         this.email = email;
-        this.id = id;
     }
 
     public String getName () {
@@ -26,10 +25,6 @@ public class User {
         return this.email;
     }
 
-    public String getId () {
-      return this.id;
-    }
-
     public void setName (String name) {
         this.name = name;
     }
@@ -40,9 +35,5 @@ public class User {
 
     public void setEmail (String email) {
         this.email = email;
-    }
-
-    public void setId (String id) {
-      this.id = id;
     }
 }
