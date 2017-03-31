@@ -258,7 +258,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         //this.LookingForSpotsNear(latitude, longitude);
 
         Button displayTimePicker = (Button) findViewById(R.id.displayTimePicker);
-        displayTimePicker.setText("Enter Time Parking");
+        displayTimePicker.setText("Select Time Parking");
         displayTimePicker.setVisibility(View.VISIBLE);
 
 
