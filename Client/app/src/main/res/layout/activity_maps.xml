@@ -54,7 +54,18 @@
             android:layout_marginBottom="51dp"
             android:text="Leaving"
             android:textStyle="bold"/>
-        
+
+        <Button
+        android:id="@+id/displayTimePicker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/Leaving"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="37dp"
+        android:onClick="showTimePickerDialog"
+        android:text="Select Time"
+        android:visibility="invisible" />
+
     </RelativeLayout>
 
 
