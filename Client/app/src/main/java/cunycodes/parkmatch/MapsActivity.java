@@ -308,7 +308,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void writeToDatabase(double longitude, double latitude) {
-        String time = "time leaving string/change this"; 
+        String time = "time leaving string/change this";
         GeoLocation x = new GeoLocation(latitude, longitude);
         LeaveSpaceRequest leave_space = new LeaveSpaceRequest(x, time);
     }

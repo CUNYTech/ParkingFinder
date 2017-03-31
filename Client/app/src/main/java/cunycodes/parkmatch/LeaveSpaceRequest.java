@@ -32,7 +32,7 @@ public class LeaveSpaceRequest {
         /* Store this car location into database using username as key */
         private void putEmptySpaceInDatabase(GeoLocation car_location, String username, String time_leaving) {
             // Add Geolocation of empty space to database
-            geoFire.setLocation(username, car_location, new GeoFire.CompletionListener() {
+             geoFire.setLocation(username, car_location, new GeoFire.CompletionListener() {
                 @Override
                 public void onComplete(String key, DatabaseError error) {
                     if (error != null) {
