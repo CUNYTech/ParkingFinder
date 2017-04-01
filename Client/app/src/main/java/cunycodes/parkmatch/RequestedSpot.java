@@ -1,9 +1,15 @@
 package cunycodes.parkmatch;
 
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+
 public class RequestedSpot {
     private double longitude, latitude;
     private int hourParking, minParking;
     private String timeParking;
+    private GeoLocation emptySpot;
 
     public RequestedSpot () {
 
@@ -15,6 +21,7 @@ public class RequestedSpot {
         this.hourParking = hourParking;
         this.minParking = minParking;
         this.timeParking = Integer.toString(hourParking)+":"+Integer.toString(minParking);
+        this.emptySpot = new GeoLocation(latitude, longitude);
     }
 
     public double getLongitude () {
@@ -44,4 +51,19 @@ public class RequestedSpot {
     public void setMinParking (int minParking) { this.minParking = minParking; }
 
     public void setTimeParking (String timeParking) { this.timeParking = timeParking; }
+
+    public void writeGeofireLocationToDatabase (DatabaseReference mDatabase, String key) {
+        GeoFire geoFire = new GeoFire(mDatabase.child("geofire_locations").child("requested")); //creates a directory called "Geofire Locations" in available spots
+        geoFire.setLocation(key, emptySpot, new GeoFire.CompletionListener() {
+            @Override
+            public void onComplete(String key, DatabaseError error) {
+                if (error != null) {
+                    System.err.println("There was an error saving the location to GeoFire: " + error);
+                } else {
+                    System.out.println("Location saved on server successfully!");
+                }
+            }
+        });
+
+    }
 }

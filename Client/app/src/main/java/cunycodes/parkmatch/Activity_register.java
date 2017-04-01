@@ -130,19 +130,10 @@ public class Activity_register extends AppCompatActivity implements View.OnClick
                 String id = currentUser.getUid();
 
                 User newUser = new User (name, userName, email, id);
-
                 mDatabase.child("users").child(id).setValue(newUser);
             }
         });
 
 
     }
-    /*public void takeMetoLogin(View view){
-        Intent myIntent= new Intent (Activity_register.this,LoginActivity.class);
-        Activity_register.this.startActivity(myIntent);
-
-    } */
-
 }
-
-
