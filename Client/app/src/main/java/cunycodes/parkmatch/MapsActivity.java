@@ -1,8 +1,10 @@
 package cunycodes.parkmatch;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
@@ -20,6 +22,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -36,10 +40,10 @@ import java.util.Calendar;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    private GoogleMap mMap;
+    public static GoogleMap mMap;
     private static DatabaseReference mDatabase;
     public static int hourLeaving, minLeaving;
-    public static double latitude, longitude;
+    public static double newLat, newLong;
 
     //a variable in order to receive results for pacePicker
 
@@ -50,7 +54,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     int ButtonSwitcher = 0;
     public static Boolean leavingClicked = false, searchingClicked = false;
 
-    @Override
+    /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
         //return true;
@@ -89,7 +93,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
+    }*/
 
     public static boolean deleteDir(File dir) {
         if (dir != null && dir.isDirectory()) {
@@ -212,26 +216,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    ///A search bar, in case its usefull later
-   /* public void SearchPlace(View view){
-        EditText Loacation_tf = (EditText)findViewById(R.id.address);
-        String location = Loacation_tf.getText().toString();
-        List<android.location.Address> addressList =null;
-        if(location != null || !location.equals("")){
-            Geocoder geocoder=new Geocoder(this);
-            try {
-               addressList= geocoder.getFromLocationName(location,1);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            android.location.Address address= addressList.get(0);
-            LatLng BoB =new LatLng(address.getLatitude(),address.getLongitude());
-            mMap.addMarker(new MarkerOptions().position(BoB).title("Marker BoB"));
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(BoB));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(10));
-        }
-    }*/
-    // place a marker in a loction close to the users current position
+    // place a marker in a location close to the users current position
 
     double Nextblock = 0.0012;
 
@@ -255,8 +240,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //this.LookingForSpotsNear(latitude, longitude);
 
+        newLat = latitude;
+        newLong = longitude;
+
         Button displayTimePicker = (Button) findViewById(R.id.displayTimePicker);
-        displayTimePicker.setText("Enter Time Parking");
+        displayTimePicker.setText("Select Time Parking");
         displayTimePicker.setVisibility(View.VISIBLE);
 
 
@@ -281,7 +269,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Zoom in the Google Map
         mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
-        mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Open Parking Spot Here"));
+        //mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Open Parking Spot Here"));
     }
 
 
@@ -304,9 +292,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         String name = placeSelected.getName().toString();
         String address = placeSelected.getAddress().toString();
 
-        //ger longitude in as an string; maybe useful later
-        // String longitude= placeSelected.getLatLng().toString();
-
         // Get latitude of the currentcar location
         double latitude = placeSelected.getLatLng().latitude;
 
@@ -315,10 +300,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 /////////////////////////////////////////////
 
+        newLat = latitude;
+        newLong = longitude;
+
         //Time picker display button made visible
         Button displayTimePickerBtn = (Button) findViewById(R.id.displayTimePicker);
-        if(placeSelected.isDataValid())
+        if(placeSelected.isDataValid()) {
+            displayTimePickerBtn.setText("Select Time Leaving");
             displayTimePickerBtn.setVisibility(View.VISIBLE);
+        }
+
 
 /////////////////////////////////////////////
 
@@ -332,6 +323,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void showTimePickerDialog(View v) {
         MapsActivity.TimePickerFragment newFragment = new MapsActivity.TimePickerFragment();
         newFragment.show(getFragmentManager(), "timePicker");
+
         //Sets 'choose time' button to invisible
         Button displayTimePickerBtn = (Button) findViewById(R.id.displayTimePicker);
         displayTimePickerBtn.setVisibility(View.INVISIBLE);
@@ -355,11 +347,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            //System.out.println("TIMEPICKER time chosen: "+ hourOfDay+":"+minute);
             hourLeaving = hourOfDay;
             minLeaving = minute;
             String timeLeaving = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
-            writeToDatabase (latitude, longitude, hourLeaving, minLeaving);
+            writeToDatabase (newLong, newLat, hourLeaving, minLeaving);
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage("Your information has been recorded").setTitle("Thank you!");
+            builder.show();
         }
     }
 
@@ -368,22 +363,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (leavingClicked.equals(true)) {
             AvailableSpot newAvailableSpot = new AvailableSpot(longitude, latitude, hour, min);
             String key = mDatabase.child("available_spots").push().getKey();
+            newAvailableSpot.writeGeofireLocationToDatabase(mDatabase, key);
             mDatabase.child("available_spots").child(key).setValue(newAvailableSpot);
         }
         else if (searchingClicked.equals(true)) {
             RequestedSpot newRequestedSpot = new RequestedSpot (longitude, latitude, hour, min);
             String key = mDatabase.child("requested_spots").push().getKey();
+            newRequestedSpot.writeGeofireLocationToDatabase(mDatabase, key);
             mDatabase.child("requested_spots").child(key).setValue(newRequestedSpot);
         }
     }
-
-
-    /*private void LookingForSpotsNear(double longitude, double latitude) {
-
-        //sends in dummy time variables
-        AvailableSpot newAvailableSpot = new AvailableSpot(longitude, latitude, 0, 0);
-        mDatabase.child("requested_spots").setValue(newAvailableSpot);
-    }*/
 
     //And we also need to override a function so in the main activity, we will be able to receive results —
     @Override

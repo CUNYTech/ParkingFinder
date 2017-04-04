@@ -109,18 +109,18 @@ public class Activity_register extends AppCompatActivity implements View.OnClick
             public void onComplete(@NonNull Task<AuthResult> task) {
                 progressDialog.dismiss();
                 if(task.isSuccessful())
-            {
+                {
 
-                //finish();
-                this.writeToDatabase (firebaseAuth.getCurrentUser());
-                startActivity(new Intent (getApplicationContext(), MapsActivity.class));
+                    //finish();
+                    this.writeToDatabase (firebaseAuth.getCurrentUser());
+                    startActivity(new Intent (getApplicationContext(), MapsActivity.class));
 
-            }
+                }
                 else
-            {
-                progressDialog.dismiss();
-                Toast.makeText(Activity_register.this, "Registration failed...please try again!", Toast.LENGTH_SHORT).show();
-            }
+                {
+                    progressDialog.dismiss();
+                    Toast.makeText(Activity_register.this, "Registration failed...please try again!", Toast.LENGTH_SHORT).show();
+                }
             }
 
             private void writeToDatabase (FirebaseUser currentUser) {
@@ -140,9 +140,6 @@ public class Activity_register extends AppCompatActivity implements View.OnClick
     /*public void takeMetoLogin(View view){
         Intent myIntent= new Intent (Activity_register.this,LoginActivity.class);
         Activity_register.this.startActivity(myIntent);
-
     } */
 
 }
-
-
