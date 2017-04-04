@@ -22,6 +22,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -38,7 +40,7 @@ import java.util.Calendar;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    private GoogleMap mMap;
+    public static GoogleMap mMap;
     private static DatabaseReference mDatabase;
     public static int hourLeaving, minLeaving;
     public static double newLat, newLong;
@@ -214,7 +216,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // place a marker in a loction close to the users current position
+    // place a marker in a location close to the users current position
 
     double Nextblock = 0.0012;
 
@@ -267,7 +269,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Zoom in the Google Map
         mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
-        mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Open Parking Spot Here"));
+        //mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Open Parking Spot Here"));
     }
 
 
