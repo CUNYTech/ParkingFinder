@@ -47,7 +47,30 @@
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />
-        <activity android:name=".Activity_register" />
+        <activity
+            android:name=".Activity_register" />
+
+
+
+
+        <activity
+            android:name=".activity_my" />
+
+        <activity
+            android:name=".AlarmActivity"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <service
+            android:name=".AlarmService"
+            android:enabled="true" />
+        <receiver android:name=".AlarmReceiver" />
+
+
     </application>
 
 </manifest>
