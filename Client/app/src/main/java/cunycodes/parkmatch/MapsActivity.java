@@ -54,7 +54,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     int ButtonSwitcher = 0;
     public static Boolean leavingClicked = false, searchingClicked = false;
 
-    /*@Override
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
         //return true;
@@ -93,7 +93,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }*/
+    }
 
     public static boolean deleteDir(File dir) {
         if (dir != null && dir.isDirectory()) {
