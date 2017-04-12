@@ -80,9 +80,10 @@ public class RequestedSpot {
     }
 
     public void retrieveAvailableSpots (DatabaseReference mDatabase) {
+        System.out.println("IAM IN RETRIEVE AVAILABLE SPOTS");
         final GeoFire geoFire = new GeoFire(mDatabase.child("geofire_locations").child("available"));
         // creates a new query around [latitude, longitude] with a radius of 0.5 kilometers
-        GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(this.latitude, this.longitude), 0.5);
+        GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(this.latitude, this.longitude), 3.2);
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
             public void onKeyEntered(String key, GeoLocation location) {
@@ -90,7 +91,10 @@ public class RequestedSpot {
                 Marker requested = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(getLatitude(), getLongitude())).title("Requested").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 Marker available = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(location.latitude, location.longitude)).title("Available"));
                 requested.showInfoWindow();
-                (MapsActivity.mMap).animateCamera(CameraUpdateFactory.newLatLng(requested.getPosition()), 250, null);
+                //(MapsActivity.mMap).animateCamera(CameraUpdateFactory.newLatLng(requested.getPosition()), 250, null);
+                (MapsActivity.mMap).moveCamera(CameraUpdateFactory.newLatLng(requested.getPosition()));
+                // Zoom in the Google Map
+                (MapsActivity.mMap).animateCamera(CameraUpdateFactory.zoomTo(13));
 
                 (MapsActivity.mMap).setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
                 {
