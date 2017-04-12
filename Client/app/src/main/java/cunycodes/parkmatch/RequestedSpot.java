@@ -21,7 +21,7 @@ import com.google.firebase.database.DatabaseReference;
 public class RequestedSpot {
     private double longitude, latitude;
     private int hourParking, minParking;
-    private String timeParking;
+    private String timeParking; //Time When you need the spot
     private GeoLocation emptySpot;
 
     public RequestedSpot () {

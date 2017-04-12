@@ -1,6 +1,7 @@
 package cunycodes.parkmatch;
 
 import android.app.AlertDialog;
+import android.widget.Toast;
 
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
