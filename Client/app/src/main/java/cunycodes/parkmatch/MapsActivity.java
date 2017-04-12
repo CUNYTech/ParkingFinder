@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -54,6 +55,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     static int alarmMinute;
 
     Boolean dialogShownOnce = false;
+
     public static MapsActivity instance() {
         return inst;
     }
@@ -117,6 +119,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // sets up the alarm
         //alarmTimePicker = (TimePicker) findViewById(R.id.alarmTimePicker);
         //alarmTextView = (TextView) findViewById(R.id.alarmText);
+        //ToggleButton alarmToggle = (ToggleButton) findViewById(R.id.alarmToggle);
+        alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+        // sets up the alarm
+
+        //alarmTimePicker = (TimePicker) findViewById(R.id.alarmTimePicker);
+       //alarmTextView = (TextView) findViewById(R.id.alarmText);
         //ToggleButton alarmToggle = (ToggleButton) findViewById(R.id.alarmToggle);
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
@@ -187,29 +196,43 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         newLat = placeSelected.getLatLng().latitude;
         newLong = placeSelected.getLatLng().longitude;
 
+
         //Select Time parking is asking when do you need to park?
         Button displayTimePicker = (Button) findViewById(R.id.displayTimePicker);
         displayTimePicker.setText("Select Time Parking");
         displayTimePicker.setVisibility(View.VISIBLE);
 
         ///////////////////////////////////////////////
-
         /*TextView enterCurrentLocation = (TextView) findViewById(R.id.SearchParking);
         enterCurrentLocation.setText("Found one near " + address);
         newLat = newLat + Nextblock;
->>>>>>> master
+        //ger longitude in as an string; maybe useful later
+        // String longitude= placeSelected.getLatLng().toString();
 
-        Nextblock = Nextblock + 0.0012;
+        // Get latitude of the currentcar location
+        double latitude = placeSelected.getLatLng().latitude;
+
+        // Get longitude of the current car location
+        double longitude = placeSelected.getLatLng().longitude;
+
+        /////////////////////////////////////////////
+
+        //this.LookingForSpotsNear(latitude, longitude);
+        newLat = latitude;
+        newLong = longitude;
+        /* jws0405
+        Button displayTimePicker = (Button) findViewById(R.id.displayTimePicker);
+        displayTimePicker.setText("Select Time Parking");
+        displayTimePicker.setVisibility(View.VISIBLE);
+        */
+        ///////////////////////////////////////////////
 
 
-        // Create a LatLng object for the current location
-        LatLng latLng = new LatLng(newLat, newLong);
-        // Show the current location in Google Map
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+       // TextView enterCurrentLocation = (TextView) findViewById(R.id.SearchParking); //jws0405
+       // enterCurrentLocation.setText("Found one near " + address);
+        // mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Open Parking Spot Here"));*/
 
-        // Zoom in the Google Map
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
-        //mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Open Parking Spot Here"));*/
+         //SelectLocationMessage(address,newLat,newLong);
     }
 
     //Opens up the GoogleMaps PlacePicker when Buttons are clicked
@@ -240,7 +263,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         newLat = latitude;
         newLong = longitude;
 
-
         if(placeSelected.isDataValid()) {
             Make_visible();//jws0405
 
@@ -250,13 +272,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         TextView enterCurrentLocation = (TextView) findViewById(R.id.Leaving);
         String buttonAddress = "Your car is at " + address;
         enterCurrentLocation.setText(buttonAddress);
-
-
-
     }
 
     //JAME'S NEW ADDITION
-    public  void Make_visible(){///jws0405
+    public  void Make_visible(){
 
         Button TimePickerBtn = (Button) findViewById(R.id.displayTimePicker);
         Button LeavingButton = (Button) findViewById(R.id.Leaving);
@@ -276,7 +295,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
 
-
     }
 
     //Called when button to select time leaving is clicked; What time is the user leaving?
@@ -291,7 +309,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //Time picker class
     public static class TimePickerFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
-        @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
 
             // Use the current time as the default values for the picker
@@ -313,7 +330,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             //make alarmHour and alarmMinute equal to leaving time for the alarm
             alarmHour= hourLeaving;;
             alarmMinute =minLeaving;
-
 
             wdata.ActivateAlarm();
 
@@ -403,7 +419,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if( dialogShownOnce == false) {
             dialogShownOnce = true;
             //final View v = findViewById(R.id.displayTimePicker);
-
             new AlertDialog.Builder(MapsActivity.this)
                     .setTitle("You are set to leave at " + hour + ":" + alarmMinute +" "+AmPm+" " )
                     .setMessage("Do you need more time ?")
@@ -473,4 +488,5 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         return dir.delete();
     }
+
 }

@@ -23,7 +23,7 @@ public class RequestedSpot {
     private int hourParking, minParking;
     private String timeParking; //Time When you need the spot
     private GeoLocation emptySpot;
-
+    private MapsActivity mA;
     public RequestedSpot () {
     }
 
@@ -86,7 +86,7 @@ public class RequestedSpot {
         GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(this.latitude, this.longitude), 3.2);
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
-            public void onKeyEntered(String key, GeoLocation location) {
+            public void onKeyEntered(String key, final GeoLocation location) {
                 System.out.println(String.format("Key %s entered the search area at [%f,%f]", key, location.latitude, location.longitude));
                 Marker requested = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(getLatitude(), getLongitude())).title("Requested").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 Marker available = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(location.latitude, location.longitude)).title("Available"));
@@ -102,6 +102,7 @@ public class RequestedSpot {
                     public boolean onMarkerClick(Marker marker) {
                         if(marker.getTitle().equals("Available")) // if marker source is clicked
                                 System.out.println("Available marker clicked");
+                               // mA.SelectLocationMessage("ADDRESS",location.latitude,location.longitude);
                         //ADD CODE FOR A POPUP DIALOG ASKING IF USER WOULD LIKE TO PARK IN LOCATION OF MARKER
                         return true;
                     }
