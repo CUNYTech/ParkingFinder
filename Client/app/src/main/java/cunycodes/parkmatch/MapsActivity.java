@@ -130,6 +130,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View view) {
                 ButtonSwitcher = 1;
                 leavingClicked = true;
+                searchingClicked = false;
                 startPlacePickerActivity();
             }
         });
@@ -142,6 +143,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View view) {
                 ButtonSwitcher = 2;
                 searchingClicked = true;
+                leavingClicked = false;
                 startPlacePickerActivity();
             }
         });
