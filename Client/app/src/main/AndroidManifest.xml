@@ -47,7 +47,16 @@
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />
-        <activity android:name=".Activity_register" />
+        <activity
+            android:name=".Activity_register" />
+
+
+        <service
+            android:name=".AlarmService"
+            android:enabled="true" />
+        <receiver android:name=".AlarmReceiver" />
+
+
     </application>
 
 </manifest>
