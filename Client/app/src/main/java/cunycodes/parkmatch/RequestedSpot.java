@@ -1,9 +1,5 @@
 package cunycodes.parkmatch;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.widget.Toast;
-
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
@@ -21,9 +17,9 @@ import com.google.firebase.database.DatabaseReference;
 public class RequestedSpot {
     private double longitude, latitude;
     private int hourParking, minParking;
-    private String timeParking; //Time When you need the spot
+    private String timeParking;
     private GeoLocation emptySpot;
-    private MapsActivity mA;
+
     public RequestedSpot () {
     }
 
@@ -80,21 +76,17 @@ public class RequestedSpot {
     }
 
     public void retrieveAvailableSpots (DatabaseReference mDatabase) {
-        System.out.println("IAM IN RETRIEVE AVAILABLE SPOTS");
         final GeoFire geoFire = new GeoFire(mDatabase.child("geofire_locations").child("available"));
         // creates a new query around [latitude, longitude] with a radius of 0.5 kilometers
-        GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(this.latitude, this.longitude), 3.2);
+        GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(this.latitude, this.longitude), 0.5);
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
-            public void onKeyEntered(String key, final GeoLocation location) {
+            public void onKeyEntered(String key, GeoLocation location) {
                 System.out.println(String.format("Key %s entered the search area at [%f,%f]", key, location.latitude, location.longitude));
                 Marker requested = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(getLatitude(), getLongitude())).title("Requested").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 Marker available = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(location.latitude, location.longitude)).title("Available"));
                 requested.showInfoWindow();
-                //(MapsActivity.mMap).animateCamera(CameraUpdateFactory.newLatLng(requested.getPosition()), 250, null);
-                (MapsActivity.mMap).moveCamera(CameraUpdateFactory.newLatLng(requested.getPosition()));
-                // Zoom in the Google Map
-                (MapsActivity.mMap).animateCamera(CameraUpdateFactory.zoomTo(13));
+                (MapsActivity.mMap).animateCamera(CameraUpdateFactory.newLatLng(requested.getPosition()), 250, null);
 
                 (MapsActivity.mMap).setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
                 {
@@ -102,7 +94,6 @@ public class RequestedSpot {
                     public boolean onMarkerClick(Marker marker) {
                         if(marker.getTitle().equals("Available")) // if marker source is clicked
                                 System.out.println("Available marker clicked");
-                               // mA.SelectLocationMessage("ADDRESS",location.latitude,location.longitude);
                         //ADD CODE FOR A POPUP DIALOG ASKING IF USER WOULD LIKE TO PARK IN LOCATION OF MARKER
                         return true;
                     }

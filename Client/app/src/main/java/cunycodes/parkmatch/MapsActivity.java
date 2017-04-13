@@ -23,10 +23,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
-
-import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
 
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
@@ -48,14 +47,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     //stets up global variables for  the alarm
     AlarmManager alarmManager;
     private PendingIntent pendingIntent;
-    // private TimePicker alarmTimePicker;
+   // private TimePicker alarmTimePicker;
     private static MapsActivity inst;
-    //private TextView alarmTextView;
+   //private TextView alarmTextView;
     static int alarmHour;
     static int alarmMinute;
 
-    Boolean dialogShownOnce = false;
-
+   Boolean dialogShownOnce = false;
     public static MapsActivity instance() {
         return inst;
     }
@@ -72,55 +70,107 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public static int hourLeaving, minLeaving;
     public static double newLat, newLong;
 
-    //Variable that confirms a location was picked by User.
+    //a variable in order to receive results for pacePicker
+
+
     private final int REQUEST_CODE_PLACEPICKER = 1;
 
     // so we can switch from gotoParking to displaySelectedPlaceFromPlacePicker  when calling onActivityResult
     int ButtonSwitcher = 0;
     public static Boolean leavingClicked = false, searchingClicked = false;
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        //return true;
+        return super.onCreateOptionsMenu(menu);
+    }
 
-    //Function that gets called when Map Activity begins
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.nav_account:
+                Toast.makeText(MapsActivity.this, "Account Settings", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.nav_settings:
+                Toast.makeText(MapsActivity.this, "Settings", Toast.LENGTH_LONG).show();
+                return true;
+            case R.id.nav_logout:
+
+                File cache = getCacheDir();
+                File appDir = new File(cache.getParent());
+                if (appDir.exists()) {
+                    String[] children = appDir.list();
+                    for (String s : children) {
+                        if (!s.equals("lib")) {
+                            deleteDir(new File(appDir, s));
+                            Log.i("TAG", "**************** File /data/data/APP_PACKAGE/" + s + " DELETED *******************");
+                        }
+                    }
+                }
+
+
+                Intent intent = new Intent(MapsActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+                System.exit(0);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public static boolean deleteDir(File dir) {
+        if (dir != null && dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i = 0; i < children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+        return dir.delete();
+    }
+
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        mDatabase = FirebaseDatabase.getInstance().getReference(); //initializing our static database reference
+        mDatabase = FirebaseDatabase.getInstance().getReference();
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        //Gives clickable functionality to "LEAVING" Button
+        //////////////////////////////////////////////////////////////////////////////////////////
+
+        //sets up button for PlacePicker Leaving
         Button LeavingButton = (Button) findViewById(R.id.Leaving);
         LeavingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ButtonSwitcher = 1;
-
                 leavingClicked = true;
-                searchingClicked = false;
-
                 startPlacePickerActivity();
             }
         });
 
-        //Gives clickable functionality to "I NEED A SPOT" Button aka gotoParkingButton
+
+        //sets up button for PlacePicker to seaech parking spot
         Button gotoParkingButton = (Button) findViewById(R.id.SearchParking);
         gotoParkingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ButtonSwitcher = 2;
                 searchingClicked = true;
-                leavingClicked = false;
                 startPlacePickerActivity();
             }
         });
-        // sets up the alarm
-        //alarmTimePicker = (TimePicker) findViewById(R.id.alarmTimePicker);
-        //alarmTextView = (TextView) findViewById(R.id.alarmText);
-        //ToggleButton alarmToggle = (ToggleButton) findViewById(R.id.alarmToggle);
-        alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
 
         // sets up the alarm
 
@@ -142,11 +192,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * installed Google Play services and returned to the app.
      */
 
-    //Function that checks if app has permission to get current location and Zooms in on current location
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap; //initialize our reference with what's passed in
 
-        //CHECKING IF WE HAVE PERMISSION TO ACCESS USER LOCATION
+    GoogleMap G_googleMap;
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+
+        //makes maps a global variable for later use
+        G_googleMap = googleMap;
+        mMap = googleMap;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -159,53 +215,50 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         // Enable MyLocation Layer of Google Map
         mMap.setMyLocationEnabled(true);
+
         // Get LocationManager object from System Service LOCATION_SERVICE
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
         // Create a criteria object to retrieve provider
         Criteria criteria = new Criteria();
+
         // Get the name of the best provider
         String provider = locationManager.getBestProvider(criteria, true);
+
         // Get Current Location
         Location myLocation = locationManager.getLastKnownLocation(provider);
 
-        //DISPLAYING CURRENT LOCATION
         if (myLocation != null) {
             // Get latitude of the current location
-            double current_latitude = myLocation.getLatitude();
+            double latitude = myLocation.getLatitude();
+
             // Get longitude of the current location
-            double current_longitude = myLocation.getLongitude();
+            double longitude = myLocation.getLongitude();
+
             // Create a LatLng object for the current location
-            LatLng latLng = new LatLng(current_latitude, current_longitude);
+            LatLng latLng = new LatLng(latitude, longitude);
+
             // Show the current location in Google Map
             googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+
             // Zoom in the Google Map
             googleMap.animateCamera(CameraUpdateFactory.zoomTo(17));
-            googleMap.addMarker(new MarkerOptions().position(new LatLng(current_latitude, current_longitude)).title("You are here!"));
+            googleMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("You are here!"));
         }
     }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // place a marker in a location close to the users current position
-    double Nextblock = 0.0012; //why do we need this
 
-    //Function that stores destination location (where the person wants to park) and asks for the time they need the spot
+    double Nextblock = 0.0012;
+
     public void gotoParking(Intent data) {
+
         Place placeSelected = PlacePicker.getPlace(this, data);
 
+        String name = placeSelected.getName().toString();
         String address = placeSelected.getAddress().toString();
-        //get latitude and longitude of the destination
-        newLat = placeSelected.getLatLng().latitude;
-        newLong = placeSelected.getLatLng().longitude;
 
-
-        //Select Time parking is asking when do you need to park?
-        Button displayTimePicker = (Button) findViewById(R.id.displayTimePicker);
-        displayTimePicker.setText("Select Time Parking");
-        displayTimePicker.setVisibility(View.VISIBLE);
-
-        ///////////////////////////////////////////////
-        /*TextView enterCurrentLocation = (TextView) findViewById(R.id.SearchParking);
-        enterCurrentLocation.setText("Found one near " + address);
-        newLat = newLat + Nextblock;
         //ger longitude in as an string; maybe useful later
         // String longitude= placeSelected.getLatLng().toString();
 
@@ -218,27 +271,48 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         /////////////////////////////////////////////
 
         //this.LookingForSpotsNear(latitude, longitude);
+
         newLat = latitude;
         newLong = longitude;
+
+
         /* jws0405
         Button displayTimePicker = (Button) findViewById(R.id.displayTimePicker);
         displayTimePicker.setText("Select Time Parking");
         displayTimePicker.setVisibility(View.VISIBLE);
         */
+
         ///////////////////////////////////////////////
 
 
        // TextView enterCurrentLocation = (TextView) findViewById(R.id.SearchParking); //jws0405
        // enterCurrentLocation.setText("Found one near " + address);
-        // mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Open Parking Spot Here"));*/
+        latitude = latitude + Nextblock;
 
-         //SelectLocationMessage(address,newLat,newLong);
+        Nextblock = Nextblock + 0.0012;
+
+
+        // Create a LatLng object for the current location
+        LatLng latLng = new LatLng(latitude, longitude);
+
+        mMap = G_googleMap;
+        // Show the current location in Google Map
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+
+        // Zoom in the Google Map at open paking spot
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
+        mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Open Parking at " +address));//jws0405
+
+       SelectLocationMessage(address,latitude,longitude);
+
     }
 
-    //Opens up the GoogleMaps PlacePicker when Buttons are clicked
+
+    //Now we need to implement startPlacePickerActivity() and a couple other functions–
     private void startPlacePickerActivity() {
         PlacePicker.IntentBuilder intentBuilder = new PlacePicker.IntentBuilder();
         // this would only work if you have your Google Places API working
+
         try {
             Intent intent = intentBuilder.build(this);
             startActivityForResult(intent, REQUEST_CODE_PLACEPICKER);
@@ -247,35 +321,45 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    //Function that gives functionality to Leaving/I have a spot portion. Gets coordinates of parked car and asks what time the user will
-    //be leaving that spot
     private void displaySelectedPlaceFromPlacePicker(Intent data) {
         Place placeSelected = PlacePicker.getPlace(this, data);
 
+        String name = placeSelected.getName().toString();
         String address = placeSelected.getAddress().toString();
 
-        // Get latitude of the current car location
+        // Get latitude of the currentcar location
         double latitude = placeSelected.getLatLng().latitude;
 
         // Get longitude of the current car location
         double longitude = placeSelected.getLatLng().longitude;
 
+/////////////////////////////////////////////
+
         newLat = latitude;
         newLong = longitude;
+
 
         if(placeSelected.isDataValid()) {
             Make_visible();//jws0405
 
         }
 
-        //Changes text on the "Leaving" Button
-        TextView enterCurrentLocation = (TextView) findViewById(R.id.Leaving);
+
+/////////////////////////////////////////////
+
+        /*TextView enterCurrentLocation = (TextView) findViewById(R.id.Leaving);//jws0405
+        //enterCurrentLocation.setText("Your Car is at "+name + ", " + address + ", coordinates= " +latitude +", " +longitude);
         String buttonAddress = "Your car is at " + address;
+
         enterCurrentLocation.setText(buttonAddress);
+        */
+
+
     }
 
-    //JAME'S NEW ADDITION
-    public  void Make_visible(){
+
+
+    public  void Make_visible(){///jws0405
 
         Button TimePickerBtn = (Button) findViewById(R.id.displayTimePicker);
         Button LeavingButton = (Button) findViewById(R.id.Leaving);
@@ -295,9 +379,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
 
+
     }
 
-    //Called when button to select time leaving is clicked; What time is the user leaving?
+
+    //Called when button to select time leaving is clicked
     public void showTimePickerDialog(View v) {
         MapsActivity.TimePickerFragment newFragment = new MapsActivity.TimePickerFragment();
         newFragment.show(getFragmentManager(), "timePicker");
@@ -308,7 +394,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     //Time picker class
-    public static class TimePickerFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
+    public  class TimePickerFragment extends DialogFragment
+            implements TimePickerDialog.OnTimeSetListener {
+
+        @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
 
             // Use the current time as the default values for the picker
@@ -323,7 +412,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            MapsActivity wdata = new MapsActivity();
             hourLeaving = hourOfDay;
             minLeaving = minute;
 
@@ -331,20 +419,23 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             alarmHour= hourLeaving;;
             alarmMinute =minLeaving;
 
-            wdata.ActivateAlarm();
+
+            ActivateAlarm();
 
             String timeLeaving = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
-            wdata.writeToDatabase (newLong, newLat, hourLeaving, minLeaving);
+            writeToDatabase (newLong, newLat, hourLeaving, minLeaving);
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setMessage("Your information has been recorded").setTitle("Thank you!");
             builder.show();
 
         }
-    }//End of Time Picker Class
+    }
 
-    //JAMES NEW ADDITION
     public void SelectLocationMessage(String msj, final double lat,final double lng) {
+
+
+
         new AlertDialog.Builder(MapsActivity.this)
                 .setTitle("Would you like to park at ")
                 .setMessage(msj)
@@ -353,7 +444,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                         String geoUri = "http://maps.google.com/maps?q=loc:" + lat + "," + lng ;
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(geoUri));
-                        MapsActivity.this.startActivity(intent);
+                       MapsActivity.this.startActivity(intent);
                     }
                 })
                 .setNegativeButton("Next Spot", new DialogInterface.OnClickListener() {
@@ -363,53 +454,61 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }).show();
     }
 
-    //Function that writes to the database when either button is clicked
-    public void writeToDatabase(double longitude, double latitude, int hour, int min) {
+
+
+
+    public static void writeToDatabase(double longitude, double latitude, int hour, int min) {
+
         if (leavingClicked.equals(true)) {
             AvailableSpot newAvailableSpot = new AvailableSpot(longitude, latitude, hour, min);
             String key = mDatabase.child("available_spots").push().getKey();
             newAvailableSpot.writeGeofireLocationToDatabase(mDatabase, key);
-            //mDatabase.child("available_spots").child(key).setValue(newAvailableSpot);
+            mDatabase.child("available_spots").child(key).setValue(newAvailableSpot);
         }
         else if (searchingClicked.equals(true)) {
             RequestedSpot newRequestedSpot = new RequestedSpot (longitude, latitude, hour, min);
             String key = mDatabase.child("requested_spots").push().getKey();
             newRequestedSpot.writeGeofireLocationToDatabase(mDatabase, key);
-            //mDatabase.child("requested_spots").child(key).setValue(newRequestedSpot);
+            mDatabase.child("requested_spots").child(key).setValue(newRequestedSpot);
+
         }
 
     }
 
-    //If the user picked a location, call the functions that handles leaving/Wanting a spot
+    //And we also need to override a function so in the main activity, we will be able to receive results —
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_PLACEPICKER && resultCode == RESULT_OK) {
             if (ButtonSwitcher == 1) {
 
-                displaySelectedPlaceFromPlacePicker(data); //LEAVING BUTTON
+                displaySelectedPlaceFromPlacePicker(data);
             }
 
             if (ButtonSwitcher == 2) {
-                gotoParking(data); //I NEED A SPOT BUTTON
+                gotoParking(data);
             }
         }
     }
 
 
-    protected void ActivateAlarm() {
+   protected void ActivateAlarm() {
 
-        Log.d("MapsActivity", "Alarm On");
-        Calendar calendar = Calendar.getInstance();
+            Log.d("MapsActivity", "Alarm On");
+            Calendar calendar = Calendar.getInstance();
 
-        calendar.set(Calendar.HOUR_OF_DAY, alarmHour);
-        calendar.set(Calendar.MINUTE, alarmMinute);
-        Intent myIntent = new Intent(MapsActivity.this, AlarmReceiver.class);
-        pendingIntent = PendingIntent.getBroadcast(MapsActivity.this, 0, myIntent, 0);
-        alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
+
+            calendar.set(Calendar.HOUR_OF_DAY, alarmHour);
+            calendar.set(Calendar.MINUTE, alarmMinute);
+            Intent myIntent = new Intent(MapsActivity.this, AlarmReceiver.class);
+            pendingIntent = PendingIntent.getBroadcast(MapsActivity.this, 0, myIntent, 0);
+            alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
 
     }
 
-    //JAMES ADDITION
+
+
     public void NeedMoreTimeMessage() {
+
         int hour=alarmHour;
         String AmPm="AM";
         if(alarmHour>12){
@@ -419,6 +518,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if( dialogShownOnce == false) {
             dialogShownOnce = true;
             //final View v = findViewById(R.id.displayTimePicker);
+
             new AlertDialog.Builder(MapsActivity.this)
                     .setTitle("You are set to leave at " + hour + ":" + alarmMinute +" "+AmPm+" " )
                     .setMessage("Do you need more time ?")
@@ -438,55 +538,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    //Implementation of menu bar
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
 
-    //Implementation of menu options
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.nav_account:
-                Toast.makeText(MapsActivity.this, "Account Settings", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.nav_settings:
-                Toast.makeText(MapsActivity.this, "Settings", Toast.LENGTH_LONG).show();
-                return true;
-            case R.id.nav_logout:   //when user clicks "Log out" we delete all cached app data.
-                File cache = getCacheDir();
-                File appDir = new File(cache.getParent());
-                if (appDir.exists()) {
-                    String[] children = appDir.list();
-                    for (String s : children) {
-                        if (!s.equals("lib")) {
-                            deleteDir(new File(appDir, s));
-                            Log.i("TAG", "**************** File /data/data/APP_PACKAGE/" + s + " DELETED *******************");
-                        }
-                    }
-                }
-                Intent intent = new Intent(MapsActivity.this, LoginActivity.class); //Login Activity is started after all data is removed
-                startActivity(intent);
-                finish();
-                System.exit(0);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
 
-    //Function that recursively deletes app data for Logging out; all saved files get deleted
-    public static boolean deleteDir(File dir) {
-        if (dir != null && dir.isDirectory()) {
-            String[] children = dir.list();
-            for (int i = 0; i < children.length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
-                if (!success) {
-                    return false;
-                }
-            }
-        }
-        return dir.delete();
-    }
 
 }
