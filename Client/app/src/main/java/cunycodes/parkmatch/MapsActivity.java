@@ -351,8 +351,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * available space.
      */
     private void destinationReachedDialog() {
-        new AlertDialog.Builder(MapsActivity.this)
-                .setTitle("Destination reached! Did you find parking?")
+        AlertDialog.Builder d = new AlertDialog.Builder(MapsActivity.instance());
+         d.setTitle("Destination reached! Did you find parking?")
                 .setNeutralButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
