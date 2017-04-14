@@ -277,8 +277,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             newRequestedSpot.writeGeofireLocationToDatabase(mDatabase, key);
             // Navigation logic (...)
             // Once they have reached destination:
-            DialogFragment destReached = destinationReachedFragment.newInstance();
-            destReached.show(getFragmentManager(), "dialog");
+            destinationReachedDialog();
             // mDatabase.child("requested_spots").child(key).setValue(newRequestedSpot);
         }
     }
@@ -351,31 +350,23 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * rerouted to the landing page. If they were not, we will return them to the map to choose another
      * available space.
      */
-    public static class destinationReachedFragment extends DialogFragment {
-        public static destinationReachedFragment newInstance() {
-            destinationReachedFragment frag = new destinationReachedFragment();
-            return frag;
-        }
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState){
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setMessage("Destination reached! Did you find parking?")
-                    .setNeutralButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // User has parked their car. Reroute them to the homepage.
-                            ((MapsActivity)getActivity()).showLandingPage();
-                        }
-                    })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // User did not find parking where we had directed them to. Return to
-                            // map to let user choose another available spot
-                            ((MapsActivity)getActivity()).startPlacePickerActivity();
-                        }
-                    });
-            return builder.create();
-        }
+    private void destinationReachedDialog() {
+        new AlertDialog.Builder(MapsActivity.this)
+                .setTitle("Destination reached! Did you find parking?")
+                .setNeutralButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // User has parked their car. Reroute them to the homepage.
+                        showLandingPage();
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // User did not find parking where we had directed them to. Return to
+                        // map to let user choose another available spot
+                        startPlacePickerActivity();
+                    }
+                }).show();
     }
 }
