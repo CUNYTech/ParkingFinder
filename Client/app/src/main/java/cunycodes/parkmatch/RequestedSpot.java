@@ -2,6 +2,8 @@ package cunycodes.parkmatch;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.location.Address;
+import android.location.Geocoder;
 import android.widget.Toast;
 
 import com.firebase.geofire.GeoFire;
@@ -18,13 +20,19 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
 public class RequestedSpot {
     private double dlongitude, dlatitude; //coordinates of destination
     private int hourParking, minParking;
     private String timeParking; //Time When you need the spot
     private GeoLocation emptySpot;
-    private double slongitude, slatitude; //coordinates of picked available spot
+    private double slongitude;
+    private double slatitude; //coordinates of picked available spot
     private LatLng pickedSpot; //object that hold both longitude and latitude
+    MapsActivity map = new MapsActivity(); // object to call MapsActivity functions
 
     public RequestedSpot () {
     }
@@ -43,6 +51,8 @@ public class RequestedSpot {
     public double getLatitude () {
         return this.dlatitude;
     }
+
+    private void setPickedLatLng(double lat, double lng) {slatitude = lat; slongitude=lng;}
 
     public double getPickedLat () {return this.slatitude;}
 
@@ -91,6 +101,7 @@ public class RequestedSpot {
         // creates a new query around [latitude, longitude] with a radius of 0.5 kilometers
         GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(this.dlatitude, this.dlongitude), 3.2);
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+
             //The location of a key now matches the query criteria.
             public void onKeyEntered(String key, GeoLocation location) {
                 System.out.println(String.format("Key %s entered the search area at [%f,%f]", key, location.latitude, location.longitude));
@@ -108,11 +119,13 @@ public class RequestedSpot {
                 {
                     @Override
                     public boolean onMarkerClick(Marker marker) {
+
                         if(marker.getTitle().equals("Available")) { // if marker source is clicked
                             System.out.println("Available marker clicked");
-                            //ADD CODE FOR A POPUP DIALOG ASKING IF USER WOULD LIKE TO PARK IN LOCATION OF MARKER
-                            slatitude = marker.getPosition().latitude;
+                            slatitude = marker.getPosition().latitude; //this doesn't actually assign Slat/slng
                             slongitude = marker.getPosition().longitude;
+                            setPickedLatLng(slatitude,slongitude); //this sets our private variables
+                            map.SelectLocationMessage(slatitude,slongitude); //calls the dialog from map acitivity
                         }
                         return true;
                     }
@@ -131,6 +144,7 @@ public class RequestedSpot {
                             //remove marker for available spot if it no longer meets query requirements
                             Marker unavailableSpot = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(location.latitude, location.longitude)));
                             unavailableSpot.remove();
+
                         } else {
                             System.out.println(String.format("There is no location for key %s in GeoFire", key));
                         }
@@ -159,4 +173,31 @@ public class RequestedSpot {
             }
         });
     }
+
+    //given a set of Latitude and longitude, it returns a string containing an address
+    public String getAddress(double lat, double lng){
+        String full_address = "null";
+        Geocoder geocoder;
+        List<Address> addresses;
+        geocoder = new Geocoder(MapsActivity.instance(), Locale.getDefault());
+        try {
+            addresses = geocoder.getFromLocation(lat, lng, 1);
+            if (addresses != null && addresses.size() > 0) {
+                String address = addresses.get(0).getAddressLine(0);
+                String city = addresses.get(0).getLocality();
+                String state = addresses.get(0).getAdminArea();
+                String country = addresses.get(0).getCountryName();
+                String zipcode  = addresses.get(0).getPostalCode();
+                String knownName = addresses.get(0).getFeatureName();
+                System.out.println("address is not null");
+                full_address = address + " " + state + " " + zipcode;
+            }
+      } catch (IOException e) {
+            e.printStackTrace();
+      }
+        return full_address;
+    }
+
+
+
 }

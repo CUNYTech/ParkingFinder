@@ -1,8 +1,10 @@
 package cunycodes.parkmatch;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -37,7 +40,31 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.io.File;
 import java.util.Calendar;
 
+
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
+
+
+    //stets up global variables for  the alarm
+    AlarmManager alarmManager;
+    private PendingIntent pendingIntent;
+    // private TimePicker alarmTimePicker;
+    private static MapsActivity inst;
+    //private TextView alarmTextView;
+    static int alarmHour;
+    static int alarmMinute;
+
+    Boolean dialogShownOnce = false;
+
+    public static MapsActivity instance() {
+        return inst;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        inst = this;
+    }
+    /////////////////////////////////////////
 
     public static GoogleMap mMap;
     private static DatabaseReference mDatabase;
@@ -92,6 +119,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 startPlacePickerActivity();
             }
         });
+
+        // sets up the alarm
+        //alarmTimePicker = (TimePicker) findViewById(R.id.alarmTimePicker);
+        //alarmTextView = (TextView) findViewById(R.id.alarmText);
+        //ToggleButton alarmToggle = (ToggleButton) findViewById(R.id.alarmToggle);
+        alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+        // sets up the alarm
+
+        //alarmTimePicker = (TimePicker) findViewById(R.id.alarmTimePicker);
+       //alarmTextView = (TextView) findViewById(R.id.alarmText);
+        //ToggleButton alarmToggle = (ToggleButton) findViewById(R.id.alarmToggle);
+        alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
     }
 
 
@@ -159,27 +199,43 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         newLat = placeSelected.getLatLng().latitude;
         newLong = placeSelected.getLatLng().longitude;
 
+
         //Select Time parking is asking when do you need to park?
         Button displayTimePicker = (Button) findViewById(R.id.displayTimePicker);
         displayTimePicker.setText("Select Time Parking");
         displayTimePicker.setVisibility(View.VISIBLE);
 
-       ///////////////////////////////////////////////
-
+        ///////////////////////////////////////////////
         /*TextView enterCurrentLocation = (TextView) findViewById(R.id.SearchParking);
         enterCurrentLocation.setText("Found one near " + address);
         newLat = newLat + Nextblock;
+        //ger longitude in as an string; maybe useful later
+        // String longitude= placeSelected.getLatLng().toString();
 
-        Nextblock = Nextblock + 0.0012;
+        // Get latitude of the currentcar location
+        double latitude = placeSelected.getLatLng().latitude;
+
+        // Get longitude of the current car location
+        double longitude = placeSelected.getLatLng().longitude;
+
+        /////////////////////////////////////////////
+
+        //this.LookingForSpotsNear(latitude, longitude);
+        newLat = latitude;
+        newLong = longitude;
+        /* jws0405
+        Button displayTimePicker = (Button) findViewById(R.id.displayTimePicker);
+        displayTimePicker.setText("Select Time Parking");
+        displayTimePicker.setVisibility(View.VISIBLE);
+        */
+        ///////////////////////////////////////////////
 
 
-        // Create a LatLng object for the current location
-        LatLng latLng = new LatLng(newLat, newLong);
-        // Show the current location in Google Map
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        // Zoom in the Google Map
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
-        //mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Open Parking Spot Here"));*/
+       // TextView enterCurrentLocation = (TextView) findViewById(R.id.SearchParking); //jws0405
+       // enterCurrentLocation.setText("Found one near " + address);
+        // mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Open Parking Spot Here"));*/
+
+         //SelectLocationMessage(address,newLat,newLong);
     }
 
     //Opens up the GoogleMaps PlacePicker when Buttons are clicked
@@ -210,11 +266,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         newLat = latitude;
         newLong = longitude;
 
-        //Time picker display button made visible
-        Button displayTimePickerBtn = (Button) findViewById(R.id.displayTimePicker);
         if(placeSelected.isDataValid()) {
-            displayTimePickerBtn.setText("Select Time Leaving");
-            displayTimePickerBtn.setVisibility(View.VISIBLE);
+            Make_visible();//jws0405
+
         }
 
         //Changes text on the "Leaving" Button
@@ -223,20 +277,41 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         enterCurrentLocation.setText(buttonAddress);
     }
 
+    //JAME'S NEW ADDITION
+    public  void Make_visible(){
+
+        Button TimePickerBtn = (Button) findViewById(R.id.displayTimePicker);
+        Button LeavingButton = (Button) findViewById(R.id.Leaving);
+        Button SerchParkingButton = (Button) findViewById(R.id.SearchParking);
+
+        if (TimePickerBtn.getVisibility() != View.VISIBLE) {
+            TimePickerBtn.setVisibility(View.VISIBLE);
+
+            LeavingButton.setVisibility(View.INVISIBLE);
+            SerchParkingButton.setVisibility(View.INVISIBLE);
+
+        } else if (TimePickerBtn.getVisibility() == View.VISIBLE){
+            TimePickerBtn.setVisibility(View.INVISIBLE);
+
+            LeavingButton.setVisibility(View.VISIBLE);
+            SerchParkingButton.setVisibility(View.VISIBLE);
+        }
+
+
+    }
+
     //Called when button to select time leaving is clicked; What time is the user leaving?
     public void showTimePickerDialog(View v) {
         MapsActivity.TimePickerFragment newFragment = new MapsActivity.TimePickerFragment();
         newFragment.show(getFragmentManager(), "timePicker");
 
         //Sets 'choose time' button to invisible
-        Button displayTimePickerBtn = (Button) findViewById(R.id.displayTimePicker);
-        displayTimePickerBtn.setVisibility(View.INVISIBLE);
+        Make_visible();
+
     }
 
     //Time picker class
     public static class TimePickerFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
-
-        @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
 
             // Use the current time as the default values for the picker
@@ -249,22 +324,50 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     DateFormat.is24HourFormat(getActivity()));
         }
 
+
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+            MapsActivity wdata = new MapsActivity();
             hourLeaving = hourOfDay;
             minLeaving = minute;
+
+            //make alarmHour and alarmMinute equal to leaving time for the alarm
+            alarmHour= hourLeaving;;
+            alarmMinute =minLeaving;
+
+            //wdata.ActivateAlarm();
+
             String timeLeaving = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
-            MapsActivity wdata = new MapsActivity();
             wdata.writeToDatabase (newLong, newLat, hourLeaving, minLeaving);
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setMessage("Your information has been recorded").setTitle("Thank you!");
             builder.show();
+
         }
     }//End of Time Picker Class
 
+    //Function that displays a dialog box confirming selected location
+    public void SelectLocationMessage(final double lat,final double lng)  {
+        RequestedSpot x = new RequestedSpot();
+        String address = x.getAddress(lat,lng);
+        AlertDialog.Builder d = new AlertDialog.Builder(MapsActivity.instance());
+               d.setTitle("Would you like to park at ")
+                .setMessage(address)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                         //NAVIGATION WOULD GO HERE
+                        destinationReachedDialog();
+                    }
+                })
+                .setNegativeButton("Next Spot", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                    }
+                }).show();
+    }
+
     //Function that writes to the database when either button is clicked
     public void writeToDatabase(double longitude, double latitude, int hour, int min) {
-
         if (leavingClicked.equals(true)) {
             AvailableSpot newAvailableSpot = new AvailableSpot(longitude, latitude, hour, min);
             String key = mDatabase.child("available_spots").push().getKey();
@@ -277,9 +380,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             newRequestedSpot.writeGeofireLocationToDatabase(mDatabase, key);
             // Navigation logic (...)
             // Once they have reached destination:
-            destinationReachedDialog();
+           // destinationReachedDialog();
             // mDatabase.child("requested_spots").child(key).setValue(newRequestedSpot);
         }
+
     }
 
     //If the user picked a location, call the functions that handles leaving/Wanting a spot
@@ -291,7 +395,53 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (ButtonSwitcher == 2) {
                 gotoParking(data); //I NEED A SPOT BUTTON
             }
+
         }
+
+    }
+
+    protected void ActivateAlarm() {
+
+        Log.d("MapsActivity", "Alarm On");
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.set(Calendar.HOUR_OF_DAY, alarmHour);
+        calendar.set(Calendar.MINUTE, alarmMinute);
+        Intent myIntent = new Intent(MapsActivity.this, AlarmReceiver.class);
+        pendingIntent = PendingIntent.getBroadcast(MapsActivity.this, 0, myIntent, 0);
+        alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
+
+    }
+
+    //JAMES ADDITION
+    public void NeedMoreTimeMessage() {
+        int hour=alarmHour;
+        String AmPm="AM";
+        if(alarmHour>12){
+            hour=hour-12;
+            AmPm="PM";
+        }
+        if( dialogShownOnce == false) {
+            dialogShownOnce = true;
+            //final View v = findViewById(R.id.displayTimePicker);
+            new AlertDialog.Builder(MapsActivity.this)
+                    .setTitle("You are set to leave at " + hour + ":" + alarmMinute +" "+AmPm+" " )
+                    .setMessage("Do you need more time ?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            Make_visible();
+                            dialogShownOnce = false;
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            dialogShownOnce = false;
+                        }
+                    }).show();
+        }
+
     }
 
     //Implementation of menu bar
@@ -357,7 +507,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // User has parked their car. Reroute them to the homepage.
-                        showLandingPage();
+                        //showLandingPage(); <<this crashes
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -365,7 +515,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     public void onClick(DialogInterface dialog, int which) {
                         // User did not find parking where we had directed them to. Return to
                         // map to let user choose another available spot
-                        startPlacePickerActivity();
+                        // startPlacePickerActivity(); << this func returns nothing call gotoparking
                     }
                 }).show();
     }
