@@ -29,7 +29,8 @@ public class RequestedSpot {
     private int hourParking, minParking;
     private String timeParking; //Time When you need the spot
     private GeoLocation emptySpot;
-    private double slongitude, slatitude; //coordinates of picked available spot
+    private double slongitude;
+    private double slatitude; //coordinates of picked available spot
     private LatLng pickedSpot; //object that hold both longitude and latitude
     MapsActivity map = new MapsActivity(); // object to call MapsActivity functions
 
@@ -50,6 +51,8 @@ public class RequestedSpot {
     public double getLatitude () {
         return this.dlatitude;
     }
+
+    private void setPickedLatLng(double lat, double lng) {slatitude = lat; slongitude=lng;}
 
     public double getPickedLat () {return this.slatitude;}
 
@@ -119,10 +122,10 @@ public class RequestedSpot {
 
                         if(marker.getTitle().equals("Available")) { // if marker source is clicked
                             System.out.println("Available marker clicked");
-                            //ADD CODE FOR A POPUP DIALOG ASKING IF USER WOULD LIKE TO PARK IN LOCATION OF MARKER
-                            slatitude = marker.getPosition().latitude;
+                            slatitude = marker.getPosition().latitude; //this doesn't actually assign Slat/slng
                             slongitude = marker.getPosition().longitude;
-                            map.SelectLocationMessage(slatitude,slongitude);
+                            setPickedLatLng(slatitude,slongitude); //this sets our private variables
+                            map.SelectLocationMessage(slatitude,slongitude); //calls the dialog from map acitivity
                         }
                         return true;
                     }
@@ -172,14 +175,13 @@ public class RequestedSpot {
     }
 
     //given a set of Latitude and longitude, it returns a string containing an address
-    public String getAddress( ){
+    public String getAddress(double lat, double lng){
         String full_address = "null";
         Geocoder geocoder;
         List<Address> addresses;
         geocoder = new Geocoder(MapsActivity.instance(), Locale.getDefault());
-
-      try {
-            addresses = geocoder.getFromLocation(slatitude, slongitude, 1);
+        try {
+            addresses = geocoder.getFromLocation(lat, lng, 1);
             if (addresses != null && addresses.size() > 0) {
                 String address = addresses.get(0).getAddressLine(0);
                 String city = addresses.get(0).getLocality();
@@ -187,12 +189,12 @@ public class RequestedSpot {
                 String country = addresses.get(0).getCountryName();
                 String zipcode  = addresses.get(0).getPostalCode();
                 String knownName = addresses.get(0).getFeatureName();
-
-                full_address = knownName + " " + address;
+                System.out.println("address is not null");
+                full_address = address + " " + state + " " + zipcode;
             }
       } catch (IOException e) {
             e.printStackTrace();
-        }
+      }
         return full_address;
     }
 

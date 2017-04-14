@@ -348,18 +348,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }//End of Time Picker Class
 
+    //Function that displays a dialog box confirming selected location
     public void SelectLocationMessage(final double lat,final double lng)  {
         RequestedSpot x = new RequestedSpot();
-        String address = x.getAddress();
-          new AlertDialog.Builder(MapsActivity.this)
-                .setTitle("Would you like to park at ")
+        String address = x.getAddress(lat,lng);
+        AlertDialog.Builder d = new AlertDialog.Builder(MapsActivity.instance());
+               d.setTitle("Would you like to park at ")
                 .setMessage(address)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-
-                        String geoUri = "http://maps.google.com/maps?q=loc:" + lat + "," + lng ;
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(geoUri));
-                        MapsActivity.this.startActivity(intent);
+                        //String geoUri = "http://maps.google.com/maps?q=loc:" + lat + "," + lng ;
+                        //Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(geoUri));
+                        //MapsActivity.this.startActivity(intent);
+                        //NAVIGATION WOULD GO HERE
                     }
                 })
                 .setNegativeButton("Next Spot", new DialogInterface.OnClickListener() {
