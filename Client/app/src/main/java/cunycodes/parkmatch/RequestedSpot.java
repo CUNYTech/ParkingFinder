@@ -2,6 +2,8 @@ package cunycodes.parkmatch;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.location.Address;
+import android.location.Geocoder;
 import android.widget.Toast;
 
 import com.firebase.geofire.GeoFire;
@@ -18,6 +20,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
 public class RequestedSpot {
     private double dlongitude, dlatitude; //coordinates of destination
     private int hourParking, minParking;
@@ -25,7 +31,7 @@ public class RequestedSpot {
     private GeoLocation emptySpot;
     private double slongitude, slatitude; //coordinates of picked available spot
     private LatLng pickedSpot; //object that hold both longitude and latitude
-    MapsActivity map; // object to call MapsActivity functions
+    MapsActivity map = new MapsActivity(); // object to call MapsActivity functions
 
     public RequestedSpot () {
     }
@@ -116,6 +122,7 @@ public class RequestedSpot {
                             //ADD CODE FOR A POPUP DIALOG ASKING IF USER WOULD LIKE TO PARK IN LOCATION OF MARKER
                             slatitude = marker.getPosition().latitude;
                             slongitude = marker.getPosition().longitude;
+                            map.SelectLocationMessage(slatitude,slongitude);
                         }
                         return true;
                     }
@@ -134,6 +141,7 @@ public class RequestedSpot {
                             //remove marker for available spot if it no longer meets query requirements
                             Marker unavailableSpot = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(location.latitude, location.longitude)));
                             unavailableSpot.remove();
+
                         } else {
                             System.out.println(String.format("There is no location for key %s in GeoFire", key));
                         }
@@ -162,4 +170,32 @@ public class RequestedSpot {
             }
         });
     }
+
+    //given a set of Latitude and longitude, it returns a string containing an address
+    public String getAddress( ){
+        String full_address = "null";
+        Geocoder geocoder;
+        List<Address> addresses;
+        geocoder = new Geocoder(MapsActivity.instance(), Locale.getDefault());
+
+      try {
+            addresses = geocoder.getFromLocation(slatitude, slongitude, 1);
+            if (addresses != null && addresses.size() > 0) {
+                String address = addresses.get(0).getAddressLine(0);
+                String city = addresses.get(0).getLocality();
+                String state = addresses.get(0).getAdminArea();
+                String country = addresses.get(0).getCountryName();
+                String zipcode  = addresses.get(0).getPostalCode();
+                String knownName = addresses.get(0).getFeatureName();
+
+                full_address = knownName + " " + address;
+            }
+      } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return full_address;
+    }
+
+
+
 }

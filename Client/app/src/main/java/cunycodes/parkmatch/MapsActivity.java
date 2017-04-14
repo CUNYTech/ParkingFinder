@@ -336,7 +336,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             alarmHour= hourLeaving;;
             alarmMinute =minLeaving;
 
-            wdata.ActivateAlarm();
+            //wdata.ActivateAlarm();
 
             String timeLeaving = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
             wdata.writeToDatabase (newLong, newLat, hourLeaving, minLeaving);
@@ -348,11 +348,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }//End of Time Picker Class
 
-    //JAMES NEW ADDITION
-   /* public void SelectLocationMessage(String msj, final double lat,final double lng) {
-        new AlertDialog.Builder(MapsActivity.this)
+    public void SelectLocationMessage(final double lat,final double lng)  {
+        RequestedSpot x = new RequestedSpot();
+        String address = x.getAddress();
+          new AlertDialog.Builder(MapsActivity.this)
                 .setTitle("Would you like to park at ")
-                .setMessage(msj)
+                .setMessage(address)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -366,39 +367,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         // do nothing
                     }
                 }).show();
-    }*/
-
-   /* public void SelectLocationMessage(final double lat,final double lng)  {
-        String msg;
-        //code to get an address from a set of lat and long
-        Geocoder geocoder;
-        //List<android.location.Address> addresses;
-        geocoder = new Geocoder(this, Locale.getDefault());
-        try {
-            //addresses = geocoder.getFromLocation(lat, lng, 1);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if(addresses != null)
-            msg = addresses.get(0).getAddressLine(0);
-
-        new AlertDialog.Builder(MapsActivity.this)
-                .setTitle("Would you like to park at ")
-                .setMessage(msg)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        String geoUri = "http://maps.google.com/maps?q=loc:" + lat + "," + lng ;
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(geoUri));
-                        MapsActivity.this.startActivity(intent);
-                    }
-                })
-                .setNegativeButton("Next Spot", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // do nothing
-                    }
-                }).show();
-    }*/
+    }
 
     //Function that writes to the database when either button is clicked
     public void writeToDatabase(double longitude, double latitude, int hour, int min) {
