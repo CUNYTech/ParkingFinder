@@ -55,10 +55,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     //Function that gets called when Map Activity begins
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
-
         mDatabase = FirebaseDatabase.getInstance().getReference(); //initializing our static database reference
+        showLandingPage();
+    }
 
+    /**
+     *  Landing Page is a map dispaying user's current location with two buttons at the bottom that
+     *  user can use to indicate they are leaving a parking spot or that they want to find a parking
+     *  spot.
+    */
+    private void showLandingPage() {
+        setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -69,15 +76,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View view) {
                 ButtonSwitcher = 1;
-
                 leavingClicked = true;
                 searchingClicked = false;
-
                 startPlacePickerActivity();
             }
         });
-
-        //Gives clickable functionality to "I NEED A SPOT" Button aka gotoParkingButton
+        // Gives clickable functionality to "I NEED A SPOT" Button aka gotoParkingButton
         Button gotoParkingButton = (Button) findViewById(R.id.SearchParking);
         gotoParkingButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,8 +92,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 startPlacePickerActivity();
             }
         });
-
-
     }
 
 
@@ -273,7 +275,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             RequestedSpot newRequestedSpot = new RequestedSpot (longitude, latitude, hour, min);
             String key = mDatabase.child("requested_spots").push().getKey();
             newRequestedSpot.writeGeofireLocationToDatabase(mDatabase, key);
-            //mDatabase.child("requested_spots").child(key).setValue(newRequestedSpot);
+            // Navigation logic (...)
+            // Once they have reached destination:
+            DialogFragment destReached = destinationReachedFragment.newInstance();
+            destReached.show(getFragmentManager(), "dialog");
+            // mDatabase.child("requested_spots").child(key).setValue(newRequestedSpot);
         }
     }
 
@@ -281,16 +287,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_PLACEPICKER && resultCode == RESULT_OK) {
             if (ButtonSwitcher == 1) {
-
                 displaySelectedPlaceFromPlacePicker(data); //LEAVING BUTTON
             }
-
             if (ButtonSwitcher == 2) {
                 gotoParking(data); //I NEED A SPOT BUTTON
             }
-
         }
-
     }
 
     //Implementation of menu bar
@@ -343,5 +345,37 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         return dir.delete();
     }
-
+    /**
+     * This method is intended to be called after a user is navigated to their parking space of choice.
+     * A pop-up message will ask user if they were able to find parking. If they did, they will be
+     * rerouted to the landing page. If they were not, we will return them to the map to choose another
+     * available space.
+     */
+    public static class destinationReachedFragment extends DialogFragment {
+        public static destinationReachedFragment newInstance() {
+            destinationReachedFragment frag = new destinationReachedFragment();
+            return frag;
+        }
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState){
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage("Destination reached! Did you find parking?")
+                    .setNeutralButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // User has parked their car. Reroute them to the homepage.
+                            ((MapsActivity)getActivity()).showLandingPage();
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // User did not find parking where we had directed them to. Return to
+                            // map to let user choose another available spot
+                            ((MapsActivity)getActivity()).startPlacePickerActivity();
+                        }
+                    });
+            return builder.create();
+        }
+    }
 }
