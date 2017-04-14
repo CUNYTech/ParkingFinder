@@ -37,18 +37,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
 
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="16dp"
             android:background="@android:color/holo_orange_light"
             android:onClick="SearchParking"
+            android:text="FIND A SPOT"
+            android:textStyle="bold"
             tools:layout_conversion_absoluteHeight="48dp"
             tools:layout_conversion_absoluteWidth="210dp"
             tools:layout_conversion_absoluteX="0dp"
             tools:layout_conversion_absoluteY="16dp"
             tools:layout_editor_absoluteX="0dp"
             tools:layout_editor_absoluteY="16dp"
-            android:layout_alignParentBottom="true"
-            android:layout_marginTop="16dp"
-            android:text="I need a spot"
-            android:textStyle="bold"
 
             />
 
@@ -60,14 +60,14 @@
 
             android:layout_height="wrap_content"
 
-            android:background="@android:color/holo_orange_light"
-
-            android:text="Leaving"
-            android:textStyle="bold"
             android:layout_alignParentBottom="true"
+
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_marginBottom="50dp" />
+            android:layout_marginBottom="50dp"
+            android:background="@android:color/holo_orange_light"
+            android:text="GIVE A SPOT"
+            android:textStyle="bold" />
 
         <Button
         android:id="@+id/displayTimePicker"
