@@ -23,7 +23,7 @@ import com.google.firebase.database.FirebaseDatabase;
 public class Activity_register extends AppCompatActivity implements View.OnClickListener {
 
     private EditText editTextName;
-    private EditText editTextUsername;
+    private EditText editTextCartype;
     private EditText editTextEmailAddress;
     private EditText editTextPassword;
     private Button registerButton;
@@ -43,7 +43,7 @@ public class Activity_register extends AppCompatActivity implements View.OnClick
         mDatabase = FirebaseDatabase.getInstance().getReference();
         progressDialog = new ProgressDialog((this));
         editTextName = (EditText) findViewById(R.id.editTextName);
-        editTextUsername = (EditText) findViewById(R.id.editTextUsername);
+        editTextCartype = (EditText) findViewById(R.id.editTextCarType);
         editTextPassword = (EditText) findViewById(R.id.editTextPassword);
         editTextEmailAddress = (EditText) findViewById(R.id.editTextEmailAddress);
         registerButton = (Button) findViewById(R.id.registerButton);
@@ -71,7 +71,7 @@ public class Activity_register extends AppCompatActivity implements View.OnClick
     private void registerUser()
     {
         String name = editTextName.getText().toString().trim();
-        String userName = editTextUsername.getText().toString().trim();
+        final String carType = editTextCartype.getText().toString().trim();
         String email = editTextEmailAddress.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
 
@@ -81,10 +81,10 @@ public class Activity_register extends AppCompatActivity implements View.OnClick
             Toast.makeText(this, "Please enter name", Toast.LENGTH_SHORT).show();
             return;
         }
-        if(TextUtils.isEmpty(userName))
+        if(TextUtils.isEmpty(carType))
         {
             //username is empty
-            Toast.makeText(this, "Please enter username", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please enter car type", Toast.LENGTH_SHORT).show();
             return;
         }
         if(TextUtils.isEmpty(email))
@@ -125,11 +125,11 @@ public class Activity_register extends AppCompatActivity implements View.OnClick
 
             private void writeToDatabase (FirebaseUser currentUser) {
                 String name = editTextName.getText().toString().trim();
-                String userName = editTextUsername.getText().toString().trim();
+                String CarType = editTextCartype.getText().toString().trim();
                 String email = editTextEmailAddress.getText().toString().trim();
                 String id = currentUser.getUid();
 
-                User newUser = new User (name, userName, email, id);
+                User newUser = new User (name, carType, email, id);
 
                 mDatabase.child("users").child(id).setValue(newUser);
             }
