@@ -1,26 +1,47 @@
 package cunycodes.parkmatch;
 
-public class User {
-    private String name, userName, email, id;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+//MAKE THIS A STATIC CLASS SO ALL CLASSES CAN USE INFORMATION
+public class User {
+    private String name, email, id, carType;
+    private int points;
+
+    //Initializes variables to current user information
     public User () {
 
     }
-
-    public User (String name, String userName, String email, String id) {
+    //when user first registers
+    public User (String name, String carType, String email, String id) {
         this.name = name;
-        this.userName = userName;
         this.email = email;
         this.id = id;
+        this.carType = carType;
+        points = 2;
+    }
+
+    //gets the current User's Id from database. if successful returns true, otherwise returns false
+    public boolean setCurrentUserId(){
+
+        FirebaseUser cUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (cUser != null){//CHECK FOR NULL POINTER so app doesn't crash}
+            id = cUser.getUid();
+            return true;
+        }
+        return false;
     }
 
     public String getName () {
         return this.name;
     }
 
-    public String getUserName () {
-        return this.userName;
-    }
+    public String getCarType(){return this.carType;}
 
     public String getEmail () {
         return this.email;
@@ -28,12 +49,14 @@ public class User {
 
     public String getId () { return this.id; }
 
+    public int getPoints () {return this.points;}
+
+    public void setPoints(int p) {points = p;}
+
+    public void setCarType(String carType){this.carType = carType;}
+
     public void setName (String name) {
         this.name = name;
-    }
-
-    public void setUserName (String userName) {
-        this.userName = userName;
     }
 
     public void setEmail (String email) {

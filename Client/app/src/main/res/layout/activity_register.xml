@@ -25,7 +25,7 @@
         android:inputType="textPersonName" />
 
     <EditText
-        android:id="@+id/editTextUsername"
+        android:id="@+id/editTextCarType"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
@@ -34,7 +34,7 @@
         android:layout_alignParentStart="true"
         android:layout_below="@+id/editTextName"
         android:ems="10"
-        android:hint="UserName"
+        android:hint="what type of car do you have?"
         android:inputType="textPersonName" />
 
     <EditText
@@ -45,7 +45,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/editTextUsername"
+        android:layout_below="@+id/editTextCarType"
         android:ems="10"
         android:hint="Email Address"
         android:inputType="textEmailAddress" />

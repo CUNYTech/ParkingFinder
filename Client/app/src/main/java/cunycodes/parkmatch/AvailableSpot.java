@@ -18,6 +18,7 @@ public class AvailableSpot {
     private String timeLeaving;
     private GeoLocation emptySpot;
     private String userId;
+    public String status = "available";
 
     public AvailableSpot () {
     }
@@ -41,6 +42,10 @@ public class AvailableSpot {
     public double getLongitude () { return this.longitude; }
 
     public String getUserId() { return this.userId; }
+
+    public String getStatus() {return this.status;}
+
+    public void setStatus(String status) {this.status = status;} //Is spot Available or Taken.
 
     public double getLatitude () { return this.latitude; }
 

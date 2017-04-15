@@ -34,8 +34,11 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
 import java.util.Calendar;
@@ -44,7 +47,7 @@ import java.util.Calendar;
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
 
-    //stets up global variables for  the alarm
+    //sets up global variables for  the alarm
     AlarmManager alarmManager;
     private PendingIntent pendingIntent;
     // private TimePicker alarmTimePicker;
@@ -57,7 +60,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public static MapsActivity instance() {
         return inst;
-    }
+    } //required for Dialog boxes
 
     @Override
     public void onStart() {
@@ -65,7 +68,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         inst = this;
     }
     /////////////////////////////////////////
-
+    private static User user;
     public static GoogleMap mMap;
     private static DatabaseReference mDatabase;
     public static int hourLeaving, minLeaving;
@@ -73,7 +76,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //Variable that confirms a location was picked by User.
     private final int REQUEST_CODE_PLACEPICKER = 1;
-
     // so we can switch from gotoParking to displaySelectedPlaceFromPlacePicker  when calling onActivityResult
     int ButtonSwitcher = 0;
     public static Boolean leavingClicked = false, searchingClicked = false;
@@ -83,7 +85,36 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mDatabase = FirebaseDatabase.getInstance().getReference(); //initializing our static database reference
+        getCurrentUser();
         showLandingPage();
+    }
+
+    private void currentUser(User u){
+        user = u;
+        System.out.println(user.getCarType() + " " + user.getEmail() + " " + user.getName() +" "+ user.getPoints() + " " +user.getId());
+    }
+
+    //get's the current users information
+    private void getCurrentUser(){
+        User user = new User ();
+        if (user.setCurrentUserId()) {
+            final FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference mRef = database.getReference("users").child(user.getId()); //reference to Users/id
+            mRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    User user1 = dataSnapshot.getValue(User.class); //return value as a string.
+                    MapsActivity x = new MapsActivity();
+                    x.currentUser(user1);
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    System.out.println("GETTING THE USER INFORMATION FAILED");
+
+                }
+            });
+        }
+
     }
 
     /**
@@ -372,7 +403,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             AvailableSpot newAvailableSpot = new AvailableSpot(longitude, latitude, hour, min);
             String key = mDatabase.child("available_spots").push().getKey();
             newAvailableSpot.writeGeofireLocationToDatabase(mDatabase, key);
-            //mDatabase.child("available_spots").child(key).setValue(newAvailableSpot);
+            mDatabase.child("Available Spots Attributes").child(key).setValue(newAvailableSpot);
         }
         else if (searchingClicked.equals(true)) {
             RequestedSpot newRequestedSpot = new RequestedSpot (longitude, latitude, hour, min);
