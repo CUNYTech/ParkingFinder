@@ -2,16 +2,11 @@ package cunycodes.parkmatch;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
-//MAKE THIS A STATIC CLASS SO ALL CLASSES CAN USE INFORMATION
+
 public class User {
     private String name, email, id, carType;
-    private int points;
+    private int points =0;
 
     //Initializes variables to current user information
     public User () {
@@ -49,7 +44,7 @@ public class User {
 
     public String getId () { return this.id; }
 
-    public int getPoints () {return this.points;}
+    public int getPoints () { return this.points; }
 
     public void setPoints(int p) {points = p;}
 

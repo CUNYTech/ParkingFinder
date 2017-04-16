@@ -55,7 +55,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     //private TextView alarmTextView;
     static int alarmHour;
     static int alarmMinute;
-
+    private TextView points;
     Boolean dialogShownOnce = false;
 
     public static MapsActivity instance() {
@@ -85,50 +85,25 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mDatabase = FirebaseDatabase.getInstance().getReference(); //initializing our static database reference
-        getCurrentUser();
+        setContentView(R.layout.activity_maps);
         showLandingPage();
-    }
-
-    private void currentUser(User u){
-        user = u;
-        System.out.println(user.getCarType() + " " + user.getEmail() + " " + user.getName() +" "+ user.getPoints() + " " +user.getId());
-    }
-
-    //get's the current users information
-    private void getCurrentUser(){
-        User user = new User ();
-        if (user.setCurrentUserId()) {
-            final FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference mRef = database.getReference("users").child(user.getId()); //reference to Users/id
-            mRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    User user1 = dataSnapshot.getValue(User.class); //return value as a string.
-                    MapsActivity x = new MapsActivity();
-                    x.currentUser(user1);
-                }
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    System.out.println("GETTING THE USER INFORMATION FAILED");
-
-                }
-            });
-        }
 
     }
 
     /**
-     *  Landing Page is a map dispaying user's current location with two buttons at the bottom that
+     *  Landing Page is a map displaying user's current location with two buttons at the bottom that
      *  user can use to indicate they are leaving a parking spot or that they want to find a parking
      *  spot.
     */
     private void showLandingPage() {
-        setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        //Gives clickable functionality to "LEAVING" Button
+        points = (TextView)findViewById(R.id.tvPointNum);
+        getCurrentUser();
+
+         //Gives clickable functionality to "LEAVING" Button
         Button LeavingButton = (Button) findViewById(R.id.Leaving);
         LeavingButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -550,4 +525,39 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                 }).show();
     }
+
+
+    //sets local User variable to object returned from database
+    private void currentUser(User u){
+        user = u;
+         System.out.println(user.getCarType() + " " + user.getEmail() +
+                " " + user.getName() +" "+ user.getPoints() + " " +user.getId());
+
+    }
+
+    //get's the current users information from Database
+    private void getCurrentUser(){
+        User user = new User ();
+        if (user.setCurrentUserId()) {
+            final FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference mRef = database.getReference("users").child(user.getId()); //reference to Users/id
+            mRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    User user1 = dataSnapshot.getValue(User.class); //return value as User object
+                    MapsActivity x = new MapsActivity();
+                    x.currentUser(user1);
+                    String p = Integer.toString(user1.getPoints());
+                    points.setText(p);
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    System.out.println("GETTING THE USER INFORMATION FAILED");
+
+                }
+            });
+        }
+
+    }
+
 }

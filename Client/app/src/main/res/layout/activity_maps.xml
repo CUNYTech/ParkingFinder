@@ -66,19 +66,43 @@
             android:layout_alignParentStart="true"
             android:layout_marginBottom="50dp"
             android:background="@android:color/holo_orange_light"
-            android:text="GIVE A SPOT"
+            android:text="LIST A SPOT"
             android:textStyle="bold" />
 
         <Button
-        android:id="@+id/displayTimePicker"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/Leaving"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="37dp"
-        android:onClick="showTimePickerDialog"
-        android:text="Select Time Leaving"
-        android:visibility="invisible" />
+            android:id="@+id/displayTimePicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/Leaving"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="37dp"
+            android:background="@android:color/holo_orange_light"
+            android:onClick="showTimePickerDialog"
+            android:text="Select Time Leaving"
+            android:visibility="invisible" />
+
+        <TextView
+            android:id="@+id/tvPointsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:fontFamily="monospace"
+            android:text="POINTS: "
+            android:textAppearance="@android:style/TextAppearance.Material.Large"
+            android:textColor="@color/cast_intro_overlay_background_color" />
+
+        <TextView
+            android:id="@+id/tvPointNum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/tvPointsTitle"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/tvPointsTitle"
+            android:text="0"
+            android:textAppearance="@android:style/TextAppearance.Material.Large"
+            android:textColor="@color/wallet_link_text_light" />
 
     </RelativeLayout>
 
