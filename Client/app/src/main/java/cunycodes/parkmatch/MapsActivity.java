@@ -21,8 +21,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-
-import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -199,12 +197,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         newLat = placeSelected.getLatLng().latitude;
         newLong = placeSelected.getLatLng().longitude;
 
-
+        /*
         //Select Time parking is asking when do you need to park?
         Button displayTimePicker = (Button) findViewById(R.id.displayTimePicker);
         displayTimePicker.setText("Select Time Parking");
         displayTimePicker.setVisibility(View.VISIBLE);
+        */
+        final Calendar c = Calendar.getInstance();
+        int hour = c.get(Calendar.HOUR_OF_DAY);
+        int minute = c.get(Calendar.MINUTE);
 
+        writeToDatabase (newLong, newLat, hour, minute);
         ///////////////////////////////////////////////
         /*TextView enterCurrentLocation = (TextView) findViewById(R.id.SearchParking);
         enterCurrentLocation.setText("Found one near " + address);
@@ -272,9 +275,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         //Changes text on the "Leaving" Button
-        TextView enterCurrentLocation = (TextView) findViewById(R.id.Leaving);
+       /* TextView enterCurrentLocation = (TextView) findViewById(R.id.Leaving);
         String buttonAddress = "Your car is at " + address;
         enterCurrentLocation.setText(buttonAddress);
+        */
     }
 
     //JAME'S NEW ADDITION
@@ -334,14 +338,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             alarmHour= hourLeaving;;
             alarmMinute =minLeaving;
 
-            //wdata.ActivateAlarm();
+            ((MapsActivity)getActivity()).ActivateAlarm();
 
             String timeLeaving = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
             wdata.writeToDatabase (newLong, newLat, hourLeaving, minLeaving);
 
+            /*
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setMessage("Your information has been recorded").setTitle("Thank you!");
             builder.show();
+            */
+
 
         }
     }//End of Time Picker Class
@@ -411,6 +418,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         pendingIntent = PendingIntent.getBroadcast(MapsActivity.this, 0, myIntent, 0);
         alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
 
+        Toast.makeText(MapsActivity.this, "Your information has been recorded", Toast.LENGTH_SHORT).show();
     }
 
     //JAMES ADDITION
