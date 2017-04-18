@@ -15,14 +15,13 @@ import com.google.firebase.database.FirebaseDatabase;
 public class AvailableSpot {
     private double longitude, latitude;
     private int hourLeaving, minLeaving;
-    private String timeLeaving;
+    private int dayOfYearLeaving; // The calendar year begins with day 1
+    private int yearLeaving;
     private GeoLocation emptySpot;
     private String userId;
 
-    public AvailableSpot () {
-    }
-
-    public AvailableSpot (double longitude, double latitude, int hourLeaving, int minLeaving) {
+    public AvailableSpot (double longitude, double latitude, int hourLeaving, int minLeaving, int thedayOfYearLeaving,
+                          int theYearLeaving) {
         //PASS AS LATITUDE AND LONGITUDE not vice versa
         this.emptySpot = new GeoLocation(latitude, longitude);
         setUserId();
@@ -34,8 +33,8 @@ public class AvailableSpot {
         this.latitude = latitude;
         this.hourLeaving = hourLeaving;
         this.minLeaving = minLeaving;
-        this.timeLeaving = Integer.toString(hourLeaving)+":"+Integer.toString(minLeaving);
-
+        this.dayOfYearLeaving = thedayOfYearLeaving;
+        this.yearLeaving = thedayOfYearLeaving;
     }
 
     public double getLongitude () { return this.longitude; }
@@ -48,7 +47,9 @@ public class AvailableSpot {
 
     public int getMinLeaving() { return this.minLeaving; }
 
-    public String getTimeLeaving() { return this.timeLeaving; }
+    public int getDayOfYearLeaving() { return this.dayOfYearLeaving; }
+
+    public int getYearLeaving() { return this.yearLeaving; }
 
     public void setLongitude (double longitude) { this.longitude = longitude; }
 
@@ -58,7 +59,10 @@ public class AvailableSpot {
 
     public void setMinLeaving(int minLeaving) { this.minLeaving = minLeaving; }
 
-    public void setTimeLeaving(String timeLeaving) { this.timeLeaving = timeLeaving; }
+    public void setDayOfYearLeaving(int theDayOfLeaving) {this.dayOfYearLeaving = theDayOfLeaving; }
+
+    public void setYearLeaving(int theYearLeaving) {this.yearLeaving = theYearLeaving; }
+
 
     private void setUserId() {
         FirebaseUser cUser;
@@ -69,7 +73,8 @@ public class AvailableSpot {
     }
 
     public void writeGeofireLocationToDatabase (DatabaseReference mDatabase, String key) {
-        GeoFire geoFire = new GeoFire(mDatabase.child("geofire_locations").child("available")); //creates a directory called "Geofire Locations" in available spots
+        //creates a directory called "Geofire Locations" in available spots
+        GeoFire geoFire = new GeoFire(mDatabase.child("geofire_locations").child("available"));
         geoFire.setLocation(key, emptySpot, new GeoFire.CompletionListener() {
             @Override
             public void onComplete(String key, DatabaseError error) {

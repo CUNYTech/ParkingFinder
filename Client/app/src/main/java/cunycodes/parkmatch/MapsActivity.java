@@ -150,7 +150,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap = googleMap; //initialize our reference with what's passed in
 
         //CHECKING IF WE HAVE PERMISSION TO ACCESS USER LOCATION
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -325,19 +327,37 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
 
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            MapsActivity wdata = new MapsActivity();
-            hourLeaving = hourOfDay;
-            minLeaving = minute;
-
+        public void onTimeSet(TimePicker view, int hourLeaving, int minuteLeaving) {
             //make alarmHour and alarmMinute equal to leaving time for the alarm
-            alarmHour= hourLeaving;;
-            alarmMinute =minLeaving;
-
+            alarmHour = hourLeaving;
+            ;
+            alarmMinute = minuteLeaving;
             //wdata.ActivateAlarm();
 
-            String timeLeaving = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
-            wdata.writeToDatabase (newLong, newLat, hourLeaving, minLeaving);
+            // Get current time and date: 
+            final Calendar c = Calendar.getInstance();
+            final int currDayOfYear = c.get(Calendar.DAY_OF_YEAR);
+            final int currYear = c.get(Calendar.YEAR);
+
+            int dayOfYearOfRequest, yearOfRequest; //Time when user expects to be leaving or searching for parking
+            int currHour = c.get(Calendar.HOUR_OF_DAY);
+            int currMin = c.get(Calendar.MINUTE);
+
+            // User is leaving their space tomorrow, so get tomorrow's date
+            if ((hourLeaving < currHour) || (hourLeaving == currHour && minuteLeaving <= currMin)) {
+                if (currDayOfYear == 365) { //Tomorow will be first day of new year
+                    dayOfYearOfRequest = 1;
+                    yearOfRequest = 1 + currYear;
+                } else {
+                    dayOfYearOfRequest = 1 + currDayOfYear;
+                    yearOfRequest = currYear;
+                }
+            } else {
+                dayOfYearOfRequest = currDayOfYear;
+                yearOfRequest = currYear;
+            }
+            ((MapsActivity)getActivity()).writeToDatabase (newLong, newLat, hourLeaving, minLeaving,
+                    dayOfYearOfRequest, yearOfRequest);
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setMessage("Your information has been recorded").setTitle("Thank you!");
@@ -367,9 +387,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     //Function that writes to the database when either button is clicked
-    public void writeToDatabase(double longitude, double latitude, int hour, int min) {
+    public void writeToDatabase(double longitude, double latitude, int hour, int min, int dayOfYear, int year) {
         if (leavingClicked.equals(true)) {
-            AvailableSpot newAvailableSpot = new AvailableSpot(longitude, latitude, hour, min);
+            AvailableSpot newAvailableSpot = new AvailableSpot(longitude, latitude, hour, min, dayOfYear, year);
             String key = mDatabase.child("available_spots").push().getKey();
             newAvailableSpot.writeGeofireLocationToDatabase(mDatabase, key);
             //mDatabase.child("available_spots").child(key).setValue(newAvailableSpot);
@@ -395,9 +415,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (ButtonSwitcher == 2) {
                 gotoParking(data); //I NEED A SPOT BUTTON
             }
-
         }
-
     }
 
     protected void ActivateAlarm() {
@@ -506,8 +524,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .setNeutralButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // User has parked their car. Reroute them to the homepage.
-                        //showLandingPage(); <<this crashes
+
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
