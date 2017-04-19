@@ -122,7 +122,7 @@ public class RequestedSpot {
                             slatitude = marker.getPosition().latitude; //this doesn't actually assign Slat/slng
                             slongitude = marker.getPosition().longitude;
                             setPickedLatLng(slatitude,slongitude); //this sets our private variables
-                            map.SelectLocationMessage(slatitude,slongitude); //calls the dialog from map acitivity
+                            map.SelectLocationMessage(slatitude,slongitude); //calls the dialog from map activity
                         }
                         return true;
                     }
