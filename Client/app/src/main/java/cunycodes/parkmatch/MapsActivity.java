@@ -17,10 +17,12 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -344,7 +346,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             alarmHour= hourLeaving;;
             alarmMinute =minLeaving;
 
-            ((MapsActivity)getActivity()).ActivateAlarm();
+            //((MapsActivity)getActivity()).ActivateAlarm();
 
             String timeLeaving = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
             wdata.writeToDatabase (newLong, newLat, hourLeaving, minLeaving);
@@ -355,7 +357,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             builder.show();
             */
 
-
+            Toast toast = Toast.makeText(MapsActivity.inst, "Thank you! Your information has been recorded", Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
         }
     }//End of Time Picker Class
 
