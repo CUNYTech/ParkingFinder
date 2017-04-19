@@ -33,20 +33,21 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -350,7 +351,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         //NAVIGATION WOULD GO HERE
-                        destinationReachedDialog ();
+                        //Make all other markers disappear?
+                        destinationReachedDialog (lat, lng);
                     }
                 })
                 .setNegativeButton("Next Spot", new DialogInterface.OnClickListener() {
@@ -496,14 +498,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * rerouted to the landing page. If they were not, we will return them to the map to choose another
      * available space.
      */
-    private void destinationReachedDialog() {
-        AlertDialog.Builder d = new AlertDialog.Builder(MapsActivity.instance());
+    private void destinationReachedDialog(final double lat, final double lng) {
+        final AlertDialog.Builder d = new AlertDialog.Builder(MapsActivity.instance());
         d.setTitle("Destination reached! Did you find parking?")
                 .setNeutralButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //User has parked their car. Reroute them to the homepage.
                         //showLandingPage(); <<this crashes
+
+                        //Parking spot chosen is now occupied by the user -- remove from database
+                        removeFromDatabase(lat, lng);
+                        //Thank user for using app?
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -512,8 +518,73 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         // User did not find parking where we had directed them to. Return to
                         // map to let user choose another available spot
                         // startPlacePickerActivity(); << this func returns nothing call gotoparking
+
+                        //Parking spot chosen was unavailable -- remove from database
+                        removeFromDatabase(lat, lng);
+                        //Remove marker from chosen spot
+
+                        //Ask if user wants another spot
+                        d.setTitle("Would you like to search for another parking spot?")
+                                .setNeutralButton("Yes", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        //Get new spot
+                                        ButtonSwitcher = 2;
+                                        searchingClicked = true;
+                                        leavingClicked = false;
+                                        startPlacePickerActivity();
+                                    }
+                                })
+                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        //Do nothing, thank user for using app and go back to landing page
+                                    }
+                                }).show();
                     }
                 }).show();
+    }
+
+    public static void removeFromDatabase(double lat, double lng) {
+
+        final double l = lng;
+        Query availQuery = mDatabase.child("available_spots").orderByChild("latitude").equalTo(lat);
+
+        availQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                    System.out.println(snapshot);
+                    AvailableSpot s = snapshot.getValue(AvailableSpot.class);
+                    if (s.getLongitude() == l) {
+
+                        String key = snapshot.getKey();
+                        snapshot.getRef().removeValue();
+
+                        //Remove from geofire_locations in addition to available_spots
+                        Query geoQuery = mDatabase.child("geofire_locations").child("available").orderByKey().equalTo(key);
+
+                        geoQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot geoDataSnapshot) {
+                                for (DataSnapshot geoSnapshot: geoDataSnapshot.getChildren())
+                                    geoSnapshot.getRef().removeValue();
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                                System.err.println(databaseError);
+                            }
+                        });
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.err.println(databaseError);
+            }
+        });
     }
 
     //given a set of Latitude and longitude, it returns a string containing an address
