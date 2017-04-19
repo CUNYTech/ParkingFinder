@@ -34,7 +34,6 @@ public class RetrieveAvailable {
 
 
     public void retrieveAvailableSpots (DatabaseReference mDatabase) {
-    //public void retrieveAvailableSpots (DatabaseReference mDatabase) {
         final GeoFire geoFire = new GeoFire(mDatabase.child("geofire_locations").child("available"));
         // creates a new query around [latitude, longitude] with a radius of 0.5 kilometers
         final GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(requested.latitude, requested.longitude), 0.5);
@@ -45,7 +44,7 @@ public class RetrieveAvailable {
                 System.out.println(String.format("Key %s entered the search area at [%f,%f]", key, location.latitude, location.longitude));
                 selected.add(location);
                 totalAvailable++;
-                displayAvailableSpot(location);
+                displayAvailableSpot(key, location);
             }
 
             //The location of a key no longer matches the query criteria.
@@ -90,7 +89,8 @@ public class RetrieveAvailable {
         });
     }
 
-    public void displayAvailableSpot (GeoLocation selected) {
+    public void displayAvailableSpot (String key, GeoLocation selected) {
+        final String availableKey = key;
         //adds the requested marker
         Marker requestedSpot = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(requested.latitude, requested.longitude)).title("Requested").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
         //adds the available marker
@@ -107,7 +107,7 @@ public class RetrieveAvailable {
             public boolean onMarkerClick(Marker marker) {
                 if(marker.getTitle().equals("Available")) { // if marker source is clicked
                     System.out.println("Available marker clicked");
-                    MapsActivity.instance().SelectLocationMessage(marker.getPosition().latitude, marker.getPosition().longitude); //calls the dialog from map activity
+                    MapsActivity.instance().SelectLocationMessage(marker.getPosition().latitude, marker.getPosition().longitude, availableKey); //calls the dialog from map activity
                     chosen = new GeoLocation(marker.getPosition().latitude, marker.getPosition().longitude);
                 }
                 return true;

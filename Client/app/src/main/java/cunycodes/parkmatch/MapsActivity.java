@@ -92,11 +92,58 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mDatabase = FirebaseDatabase.getInstance().getReference();//initializing our static database reference
+        moreTime = false;
+        lastKey = "";
+
+        Calendar c = Calendar.getInstance();
+        int hour = c.get(Calendar.HOUR_OF_DAY);
+        int minute = c.get(Calendar.MINUTE) - 5;
+        String time = Integer.toString(hour)+":"+Integer.toString(minute);
+        this.cleanDatabase(time);
+
         showLandingPage();
     }
 
+    //Removes any available spots that have become available before the current time minus 5 minutes
+    private void cleanDatabase (String time) {
+        Query timeQuery = mDatabase.child("available_spots").orderByChild("timeLeaving").endAt(time);
+
+        timeQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                    System.out.println(snapshot);
+                    AvailableSpot s = snapshot.getValue(AvailableSpot.class);
+                    String key = snapshot.getKey();
+                    snapshot.getRef().removeValue();
+
+                    //Remove from geofire_locations in addition to available_spots
+                    Query geoQuery = mDatabase.child("geofire_locations").child("available").orderByKey().equalTo(key);
+
+                    geoQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                         @Override
+                         public void onDataChange(DataSnapshot geoDataSnapshot) {
+                             for (DataSnapshot geoSnapshot: geoDataSnapshot.getChildren())
+                                 geoSnapshot.getRef().removeValue();
+                              }
+
+                         @Override
+                         public void onCancelled(DatabaseError databaseError) {
+                             System.err.println(databaseError);
+                         }
+                     });
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.err.println(databaseError);
+            }
+        });
+    }
+
     /**
-     *  Landing Page is a map dispaying user's current location with two buttons at the bottom that
+     *  Landing Page is a map displaying user's current location with two buttons at the bottom that
      *  user can use to indicate they are leaving a parking spot or that they want to find a parking
      *  spot.
      */
@@ -343,8 +390,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     //Function that displays a dialog box confirming selected location
-    public void SelectLocationMessage(final double lat, final double lng)  {
+    public void SelectLocationMessage(final double lat, final double lng, String key)  {
         String address = getAddress (lat, lng);
+        //String time = getTimeAvailable (key);
         AlertDialog.Builder d = new AlertDialog.Builder(MapsActivity.instance());
         d.setTitle("Would you like to park at:")
                 .setMessage(address)
@@ -588,7 +636,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     //given a set of Latitude and longitude, it returns a string containing an address
-    public String getAddress(double lat, double lng){
+    private String getAddress(double lat, double lng){
         String full_address = "null";
         Geocoder geocoder;
         List<Address> addresses;
