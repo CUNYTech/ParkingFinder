@@ -77,13 +77,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static DatabaseReference mDatabase;
     public static int hourLeaving, minLeaving;
     public static double newLat, newLong;
+    public static String lastKey="";
 
     //Variable that confirms a location was picked by User.
     private final int REQUEST_CODE_PLACEPICKER = 1;
 
     // so we can switch from gotoParking to displaySelectedPlaceFromPlacePicker  when calling onActivityResult
     int ButtonSwitcher = 0;
-    public static Boolean leavingClicked = false, searchingClicked = false;
+    public static Boolean leavingClicked = false, searchingClicked = false, moreTime = false;
 
 
     //Function that gets called when Map Activity begins
@@ -321,7 +322,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             ((MapsActivity)getActivity()).ActivateAlarm();
 
-            writeToDatabase (newLong, newLat, hourLeaving, minLeaving);
+            if (moreTime)
+                updateTimeInDatabase (hourLeaving, minLeaving);
+            else
+                writeToDatabase (newLong, newLat, hourLeaving, minLeaving);
 
             /*
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -330,6 +334,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             */
         }
     }//End of Time Picker Class
+
+    public static void updateTimeInDatabase(int hour, int min) {
+        mDatabase.child("available_spots").child(lastKey).child("hourLeaving").setValue(hour);
+        mDatabase.child("available_spots").child(lastKey).child("minLeaving").setValue(min);
+        mDatabase.child("available_spots").child(lastKey).child("timeLeaving").setValue(Integer.toString(hour)+":"+Integer.toString(min));
+    }
 
     //Function that displays a dialog box confirming selected location
     public void SelectLocationMessage(final double lat, final double lng)  {
@@ -357,6 +367,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             String key = mDatabase.child("available_spots").push().getKey();
             newAvailableSpot.writeGeofireLocationToDatabase(mDatabase, key);
             mDatabase.child("available_spots").child(key).setValue(newAvailableSpot);
+            lastKey = key;
         }
         else if (searchingClicked.equals(true)) {
             RequestedSpot newRequestedSpot = new RequestedSpot (longitude, latitude, hour, min);
@@ -395,7 +406,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         pendingIntent = PendingIntent.getBroadcast(MapsActivity.this, 0, myIntent, 0);
         alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
 
-        Toast.makeText(MapsActivity.this, "Your information has been recorded", Toast.LENGTH_LONG).show();
+        Toast.makeText(MapsActivity.this, "Your information has been recorded", Toast.LENGTH_SHORT).show();
     }
 
     //JAMES ADDITION
@@ -414,7 +425,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     .setMessage("Do you need more time?")
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-
+                            moreTime = true;
                             Make_visible();
                             dialogShownOnce = false;
                         }
