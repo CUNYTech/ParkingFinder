@@ -14,35 +14,31 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 
-import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
 
 public class RetrieveAvailable {
-    private GeoLocation requested, chosen;
-    private ArrayList<GeoLocation> selected;
+    private GeoLocation requested;
+    private HashMap<String, GeoLocation> selected;
     private int totalAvailable;
 
     public RetrieveAvailable (GeoLocation requested) {
         this.requested = requested;
-        this.chosen = null;
-        this.selected = new ArrayList<GeoLocation>();
+        this.selected = new HashMap<String, GeoLocation>();
         this.totalAvailable = 0;
     }
 
-    public GeoLocation getChosen () {
-        return chosen;
-    }
 
-
-    public void retrieveAvailableSpots (DatabaseReference mDatabase) {
+    public void retrieveAvailableSpots (final DatabaseReference mDatabase) {
         final GeoFire geoFire = new GeoFire(mDatabase.child("geofire_locations").child("available"));
         // creates a new query around [latitude, longitude] with a radius of 0.5 kilometers
         final GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(requested.latitude, requested.longitude), 0.5);
 
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             //The location of a key now matches the query criteria.
-            public void onKeyEntered(String key, GeoLocation location) {
+            public void onKeyEntered(final String key, GeoLocation location) {
                 System.out.println(String.format("Key %s entered the search area at [%f,%f]", key, location.latitude, location.longitude));
-                selected.add(location);
+                selected.put(key, location);
                 totalAvailable++;
                 displayAvailableSpot(key, location);
             }
@@ -58,7 +54,8 @@ public class RetrieveAvailable {
                             //remove marker for available spot if it no longer meets query requirements
                             Marker unavailableSpot = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(location.latitude, location.longitude)));
                             unavailableSpot.remove();
-
+                            selected.remove(key);
+                            totalAvailable--;
                         } else {
                             System.out.println(String.format("There is no location for key %s in GeoFire", key));
                         }
@@ -91,6 +88,7 @@ public class RetrieveAvailable {
 
     public void displayAvailableSpot (String key, GeoLocation selected) {
         final String availableKey = key;
+
         //adds the requested marker
         Marker requestedSpot = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(requested.latitude, requested.longitude)).title("Requested").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
         //adds the available marker
@@ -108,7 +106,6 @@ public class RetrieveAvailable {
                 if(marker.getTitle().equals("Available")) { // if marker source is clicked
                     System.out.println("Available marker clicked");
                     MapsActivity.instance().SelectLocationMessage(marker.getPosition().latitude, marker.getPosition().longitude, availableKey); //calls the dialog from map activity
-                    chosen = new GeoLocation(marker.getPosition().latitude, marker.getPosition().longitude);
                 }
                 return true;
             }

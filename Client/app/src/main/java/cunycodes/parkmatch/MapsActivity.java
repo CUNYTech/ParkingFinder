@@ -98,8 +98,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Calendar c = Calendar.getInstance();
         int hour = c.get(Calendar.HOUR_OF_DAY);
         int minute = c.get(Calendar.MINUTE) - 5;
-        String time = Integer.toString(hour)+":"+Integer.toString(minute);
-        this.cleanDatabase(time);
+        //COMMENTING DB CLEANUP BECAUSE IT WOUL REQUIRE US CONTINUOUSLY UPDATING DATA
+        //this.cleanDatabase(time);
 
         showLandingPage();
     }
@@ -250,7 +250,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void gotoParking(Intent data) {
         Place placeSelected = PlacePicker.getPlace(this, data);
 
-        String address = placeSelected.getAddress().toString();
+        //String address = placeSelected.getAddress().toString();
 
         //get latitude and longitude of the destination
         newLat = placeSelected.getLatLng().latitude;
@@ -290,7 +290,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void displaySelectedPlaceFromPlacePicker(Intent data) {
         Place placeSelected = PlacePicker.getPlace(this, data);
 
-        String address = placeSelected.getAddress().toString();
+        //String address = placeSelected.getAddress().toString();
 
         // Get latitude of the current car location
         double latitude = placeSelected.getLatLng().latitude;
@@ -391,7 +391,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //Function that displays a dialog box confirming selected location
     public void SelectLocationMessage(final double lat, final double lng, String key)  {
-        String address = getAddress (lat, lng);
+        String address = toAddress (lat, lng);
         //String time = getTimeAvailable (key);
         AlertDialog.Builder d = new AlertDialog.Builder(MapsActivity.instance());
         d.setTitle("Would you like to park at:")
@@ -636,7 +636,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     //given a set of Latitude and longitude, it returns a string containing an address
-    private String getAddress(double lat, double lng){
+    private String toAddress(double lat, double lng){
         String full_address = "null";
         Geocoder geocoder;
         List<Address> addresses;
