@@ -346,6 +346,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             alarmHour= hourLeaving;;
             alarmMinute =minLeaving;
 
+
             //((MapsActivity)getActivity()).ActivateAlarm();
 
             String timeLeaving = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
