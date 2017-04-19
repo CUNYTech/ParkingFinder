@@ -392,7 +392,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             AvailableSpot newAvailableSpot = new AvailableSpot(longitude, latitude, hour, min, dayOfYear, year);
             String key = mDatabase.child("available_spots").push().getKey();
             newAvailableSpot.writeGeofireLocationToDatabase(mDatabase, key);
-            //mDatabase.child("available_spots").child(key).setValue(newAvailableSpot);
+            mDatabase.child("available_spots").child(key).setValue(newAvailableSpot);
         }
         else if (searchingClicked.equals(true)) {
             RequestedSpot newRequestedSpot = new RequestedSpot (longitude, latitude, hour, min);
