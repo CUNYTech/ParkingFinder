@@ -100,17 +100,15 @@ public class RequestedSpot {
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
 
             //The location of a key now matches the query criteria.
-            public void onKeyEntered(String key, GeoLocation location) {
+            public void onKeyEntered(final String key, GeoLocation location) {
                 System.out.println(String.format("Key %s entered the search area at [%f,%f]", key, location.latitude, location.longitude));
                 //adds the requested marker
                 Marker requested = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(getLatitude(), getLongitude())).title("Requested").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 //adds the available marker
                 Marker available = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(location.latitude, location.longitude)).title("Available").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
                 requested.showInfoWindow();
-                //(MapsActivity.mMap).animateCamera(CameraUpdateFactory.newLatLng(requested.getPosition()), 250, null);
                 (MapsActivity.mMap).moveCamera(CameraUpdateFactory.newLatLng(requested.getPosition()));
-                // Zoom in the Google Map
-                (MapsActivity.mMap).animateCamera(CameraUpdateFactory.zoomTo(13));
+                (MapsActivity.mMap).animateCamera(CameraUpdateFactory.zoomTo(13));// Zoom in the Google Map
 
                 (MapsActivity.mMap).setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
                 {
@@ -122,7 +120,9 @@ public class RequestedSpot {
                             slatitude = marker.getPosition().latitude; //this doesn't actually assign Slat/slng
                             slongitude = marker.getPosition().longitude;
                             setPickedLatLng(slatitude,slongitude); //this sets our private variables
+                            map.selectedPlaceKey = key; //gives the selected key to mapActivity
                             map.SelectLocationMessage(slatitude,slongitude); //calls the dialog from map activity
+                            map.getSelectedSpotInfo();
                         }
                         return true;
                     }

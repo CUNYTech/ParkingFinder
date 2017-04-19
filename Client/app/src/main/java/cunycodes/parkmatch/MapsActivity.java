@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.android.gms.fitness.data.Value;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -69,6 +70,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
     /////////////////////////////////////////
     private static User user;
+    protected String selectedPlaceKey = "null";
+    protected static AvailableSpot selectedSpot = new AvailableSpot();
     public static GoogleMap mMap;
     private static DatabaseReference mDatabase;
     public static int hourLeaving, minLeaving;
@@ -531,8 +534,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .setNeutralButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // User has parked their car. Reroute them to the homepage.
-                        //showLandingPage(); <<this crashes
+                        //User has parked their car
+                        //remove a point
+                        if(!pointsManager("remove")) System.out.println("ERROR IN POINTS MANAGER");
+                        //give user who gave a spot a point
+                        giveOtherUserPoints(selectedSpot.getUserId());
+
+
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -579,7 +587,31 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    //Gives and Removes points for the user
+    //gets the other user's point information from the database
+    private void giveOtherUserPoints(String userID){
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference mRef = database.getReference("users").child(userID);//reference to Users/id
+        mRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User user2 = dataSnapshot.getValue(User.class); //return value as User object
+                MapsActivity x = new MapsActivity();
+                x.setOtherUserPoints(user2);
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("UNABLE TO RETRIEVE OTHER USER INFORMATION");
+            }
+        });
+
+    }
+
+    private void setOtherUserPoints(User u){
+        u.addPoints();
+        mDatabase.child("users").child(u.getId()).child("points").setValue(u.getPoints());
+    }
+
+    //Adds or Removes points from the user. Returns false if the wrong string is passed in.
     private boolean pointsManager(String manage) {
         //Gives user 1 point for giving a spot
         if (manage.equals("add")) {
@@ -595,6 +627,26 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         return false;
+    }
+
+    public void getSelectedSpotInfo (){
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference mRef = database.getReference("Available Spots Attributes").child(selectedPlaceKey); //reference to Users/id
+        mRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                AvailableSpot spot1 = dataSnapshot.getValue(AvailableSpot.class); //return value as User object
+                MapsActivity.selectedSpot  = spot1;
+
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("GETTING AVAILABLE SPOT INFORMATION FAILED");
+
+            }
+        });
+
+
     }
 
 }
