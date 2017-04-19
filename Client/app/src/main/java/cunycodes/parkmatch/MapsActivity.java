@@ -467,6 +467,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
         return super.onCreateOptionsMenu(menu);
+
     }
 
     //Implementation of menu options
@@ -476,6 +477,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Toast.makeText(MapsActivity.this, "Account Settings", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.nav_settings:
+
+                // opens App setting
+                Intent SettingsIntent = new Intent(this, SettingsActivity.class);
+                startActivity(SettingsIntent);
                 Toast.makeText(MapsActivity.this, "Settings", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.nav_logout:   //when user clicks "Log out" we delete all cached app data.
