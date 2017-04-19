@@ -1,15 +1,11 @@
 package cunycodes.parkmatch;
 
-import android.app.AlertDialog;
-import android.widget.Toast;
-
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 
 public class AvailableSpot {
@@ -18,7 +14,7 @@ public class AvailableSpot {
     private String timeLeaving;
     private GeoLocation emptySpot;
     private String userId;
-    public String status = "available";
+    public String carType = "unavailable";
 
     public AvailableSpot () {
     }
@@ -27,6 +23,7 @@ public class AvailableSpot {
         //PASS AS LATITUDE AND LONGITUDE not vice versa
         this.emptySpot = new GeoLocation(latitude, longitude);
         setUserId();
+        setCarType();
         // Add Geolocation of empty space to database
         //rootRef = FirebaseDatabase.getInstance().getReference();
         //String geoKey = mDatabase.child("GeoFire Locations").push().getKey();
@@ -43,9 +40,11 @@ public class AvailableSpot {
 
     public String getUserId() { return this.userId; }
 
-    public String getStatus() {return this.status;}
+    public String getCarType() {return carType;}
 
-    public void setStatus(String status) {this.status = status;} //Is spot Available or Taken.
+    public void setCarType() {
+        carType = MapsActivity.user.getCarType();
+    }
 
     public double getLatitude () { return this.latitude; }
 

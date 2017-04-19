@@ -69,9 +69,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         inst = this;
     }
     /////////////////////////////////////////
-    private static User user;
-    protected String selectedPlaceKey = "null";
-    protected static AvailableSpot selectedSpot = new AvailableSpot();
+    protected static User user;
     public static GoogleMap mMap;
     private static DatabaseReference mDatabase;
     public static int hourLeaving, minLeaving;
@@ -377,7 +375,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         String address = x.getAddress(lat,lng);
         AlertDialog.Builder d = new AlertDialog.Builder(MapsActivity.instance());
                d.setTitle("Would you like to park at ")
-                .setMessage(address)
+                .setMessage(address + "\nTIME MARKED: " + RequestedSpot.selectedSpot.getTimeLeaving() + "\nCAR TYPE: " + RequestedSpot.selectedSpot.getCarType())
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                          //NAVIGATION WOULD GO HERE
@@ -538,7 +536,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         //remove a point
                         if(!pointsManager("remove")) System.out.println("ERROR IN POINTS MANAGER");
                         //give user who gave a spot a point
-                        giveOtherUserPoints(selectedSpot.getUserId());
+                        giveOtherUserPoints(RequestedSpot.selectedSpot.getUserId());
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -627,26 +625,5 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         return false;
     }
 
-    //sets Local available spot object to the one returned from the database. This object contains information about the
-    //selected spot 
-    public void getSelectedSpotInfo (){
-        final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference mRef = database.getReference("Available Spots Attributes").child(selectedPlaceKey); //reference to Users/id
-        mRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                AvailableSpot spot1 = dataSnapshot.getValue(AvailableSpot.class); //return value as User object
-                MapsActivity.selectedSpot  = spot1;
-
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                System.out.println("GETTING AVAILABLE SPOT INFORMATION FAILED");
-
-            }
-        });
-
-
-    }
 
 }
