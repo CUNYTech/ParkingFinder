@@ -9,7 +9,9 @@ import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
 import android.location.Criteria;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -17,15 +19,14 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -33,21 +34,25 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Calendar;
-
+import java.util.List;
+import java.util.Locale;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
 
-    //sets up global variables for  the alarm
+    //stets up global variables for  the alarm
     AlarmManager alarmManager;
     private PendingIntent pendingIntent;
     // private TimePicker alarmTimePicker;
@@ -55,12 +60,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     //private TextView alarmTextView;
     static int alarmHour;
     static int alarmMinute;
-    private TextView points;
+
     Boolean dialogShownOnce = false;
 
     public static MapsActivity instance() {
         return inst;
-    } //required for Dialog boxes
+    }
 
     @Override
     public void onStart() {
@@ -68,42 +73,87 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         inst = this;
     }
     /////////////////////////////////////////
-    private static User user;
+
     public static GoogleMap mMap;
     private static DatabaseReference mDatabase;
     public static int hourLeaving, minLeaving;
     public static double newLat, newLong;
+    public static String lastKey="";
 
     //Variable that confirms a location was picked by User.
     private final int REQUEST_CODE_PLACEPICKER = 1;
+
     // so we can switch from gotoParking to displaySelectedPlaceFromPlacePicker  when calling onActivityResult
     int ButtonSwitcher = 0;
-    public static Boolean leavingClicked = false, searchingClicked = false;
+    public static Boolean leavingClicked = false, searchingClicked = false, moreTime = false;
 
 
     //Function that gets called when Map Activity begins
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mDatabase = FirebaseDatabase.getInstance().getReference(); //initializing our static database reference
-        setContentView(R.layout.activity_maps);
-        showLandingPage();
+        mDatabase = FirebaseDatabase.getInstance().getReference();//initializing our static database reference
+        moreTime = false;
+        lastKey = "";
 
+        Calendar c = Calendar.getInstance();
+        int hour = c.get(Calendar.HOUR_OF_DAY);
+        int minute = c.get(Calendar.MINUTE) - 5;
+        //COMMENTING DB CLEANUP BECAUSE IT WOUL REQUIRE US CONTINUOUSLY UPDATING DATA
+        //this.cleanDatabase(time);
+
+        showLandingPage();
+    }
+
+    //Removes any available spots that have become available before the current time minus 5 minutes
+    private void cleanDatabase (String time) {
+        Query timeQuery = mDatabase.child("available_spots").orderByChild("timeLeaving").endAt(time);
+
+        timeQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                    System.out.println(snapshot);
+                    AvailableSpot s = snapshot.getValue(AvailableSpot.class);
+                    String key = snapshot.getKey();
+                    snapshot.getRef().removeValue();
+
+                    //Remove from geofire_locations in addition to available_spots
+                    Query geoQuery = mDatabase.child("geofire_locations").child("available").orderByKey().equalTo(key);
+
+                    geoQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                         @Override
+                         public void onDataChange(DataSnapshot geoDataSnapshot) {
+                             for (DataSnapshot geoSnapshot: geoDataSnapshot.getChildren())
+                                 geoSnapshot.getRef().removeValue();
+                              }
+
+                         @Override
+                         public void onCancelled(DatabaseError databaseError) {
+                             System.err.println(databaseError);
+                         }
+                     });
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.err.println(databaseError);
+            }
+        });
     }
 
     /**
      *  Landing Page is a map displaying user's current location with two buttons at the bottom that
      *  user can use to indicate they are leaving a parking spot or that they want to find a parking
      *  spot.
-    */
+     */
     private void showLandingPage() {
+        setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        points = (TextView)findViewById(R.id.tvPointNum);
-        getCurrentUser();
-
-         //Gives clickable functionality to "LEAVING" Button
+        //Gives clickable functionality to "LEAVING" Button
         Button LeavingButton = (Button) findViewById(R.id.Leaving);
         LeavingButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,7 +185,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // sets up the alarm
 
         //alarmTimePicker = (TimePicker) findViewById(R.id.alarmTimePicker);
-       //alarmTextView = (TextView) findViewById(R.id.alarmText);
+        //alarmTextView = (TextView) findViewById(R.id.alarmText);
         //ToggleButton alarmToggle = (ToggleButton) findViewById(R.id.alarmToggle);
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
     }
@@ -200,54 +250,28 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void gotoParking(Intent data) {
         Place placeSelected = PlacePicker.getPlace(this, data);
 
-        String address = placeSelected.getAddress().toString();
+        //String address = placeSelected.getAddress().toString();
+
         //get latitude and longitude of the destination
         newLat = placeSelected.getLatLng().latitude;
         newLong = placeSelected.getLatLng().longitude;
-
         /*
         //Select Time parking is asking when do you need to park?
         Button displayTimePicker = (Button) findViewById(R.id.displayTimePicker);
         displayTimePicker.setText("Select Time Parking");
         displayTimePicker.setVisibility(View.VISIBLE);
         */
+
         final Calendar c = Calendar.getInstance();
         int hour = c.get(Calendar.HOUR_OF_DAY);
         int minute = c.get(Calendar.MINUTE);
 
         writeToDatabase (newLong, newLat, hour, minute);
-        ///////////////////////////////////////////////
-        /*TextView enterCurrentLocation = (TextView) findViewById(R.id.SearchParking);
-        enterCurrentLocation.setText("Found one near " + address);
-        newLat = newLat + Nextblock;
-        //ger longitude in as an string; maybe useful later
-        // String longitude= placeSelected.getLatLng().toString();
-
-        // Get latitude of the currentcar location
-        double latitude = placeSelected.getLatLng().latitude;
-
-        // Get longitude of the current car location
-        double longitude = placeSelected.getLatLng().longitude;
-
-        /////////////////////////////////////////////
-
-        //this.LookingForSpotsNear(latitude, longitude);
-        newLat = latitude;
-        newLong = longitude;
-        /* jws0405
-        Button displayTimePicker = (Button) findViewById(R.id.displayTimePicker);
-        displayTimePicker.setText("Select Time Parking");
-        displayTimePicker.setVisibility(View.VISIBLE);
-        */
-        ///////////////////////////////////////////////
-
-
-       // TextView enterCurrentLocation = (TextView) findViewById(R.id.SearchParking); //jws0405
-       // enterCurrentLocation.setText("Found one near " + address);
-        // mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Open Parking Spot Here"));*/
-
-         //SelectLocationMessage(address,newLat,newLong);
+        GeoLocation requested = new GeoLocation(newLat, newLong);
+        RetrieveAvailable retrieveAvailable = new RetrieveAvailable (requested);
+        retrieveAvailable.retrieveAvailableSpots(mDatabase);
     }
+
 
     //Opens up the GoogleMaps PlacePicker when Buttons are clicked
     private void startPlacePickerActivity() {
@@ -266,7 +290,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void displaySelectedPlaceFromPlacePicker(Intent data) {
         Place placeSelected = PlacePicker.getPlace(this, data);
 
-        String address = placeSelected.getAddress().toString();
+        //String address = placeSelected.getAddress().toString();
 
         // Get latitude of the current car location
         double latitude = placeSelected.getLatLng().latitude;
@@ -279,7 +303,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         if(placeSelected.isDataValid()) {
             Make_visible();//jws0405
-
         }
 
         //Changes text on the "Leaving" Button
@@ -338,43 +361,46 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            MapsActivity wdata = new MapsActivity();
             hourLeaving = hourOfDay;
             minLeaving = minute;
 
             //make alarmHour and alarmMinute equal to leaving time for the alarm
-            alarmHour= hourLeaving;;
-            alarmMinute =minLeaving;
+            alarmHour = hourLeaving;
+            alarmMinute = minLeaving;
 
+            ((MapsActivity)getActivity()).ActivateAlarm();
 
-            //((MapsActivity)getActivity()).ActivateAlarm();
-
-            String timeLeaving = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
-            wdata.writeToDatabase (newLong, newLat, hourLeaving, minLeaving);
+            if (moreTime)
+                updateTimeInDatabase (hourLeaving, minLeaving);
+            else
+                writeToDatabase (newLong, newLat, hourLeaving, minLeaving);
 
             /*
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setMessage("Your information has been recorded").setTitle("Thank you!");
             builder.show();
             */
-
-            Toast toast = Toast.makeText(MapsActivity.inst, "Thank you! Your information has been recorded", Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.CENTER, 0, 0);
-            toast.show();
         }
     }//End of Time Picker Class
 
+    public static void updateTimeInDatabase(int hour, int min) {
+        mDatabase.child("available_spots").child(lastKey).child("hourLeaving").setValue(hour);
+        mDatabase.child("available_spots").child(lastKey).child("minLeaving").setValue(min);
+        mDatabase.child("available_spots").child(lastKey).child("timeLeaving").setValue(Integer.toString(hour)+":"+Integer.toString(min));
+    }
+
     //Function that displays a dialog box confirming selected location
-    public void SelectLocationMessage(final double lat,final double lng)  {
-        RequestedSpot x = new RequestedSpot();
-        String address = x.getAddress(lat,lng);
+    public void SelectLocationMessage(final double lat, final double lng, String key)  {
+        String address = toAddress (lat, lng);
+        //String time = getTimeAvailable (key);
         AlertDialog.Builder d = new AlertDialog.Builder(MapsActivity.instance());
-               d.setTitle("Would you like to park at ")
+        d.setTitle("Would you like to park at:")
                 .setMessage(address)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                         //NAVIGATION WOULD GO HERE
-                        destinationReachedDialog();
+                        //NAVIGATION WOULD GO HERE
+                        //Make all other markers disappear?
+                        destinationReachedDialog (lat, lng);
                     }
                 })
                 .setNegativeButton("Next Spot", new DialogInterface.OnClickListener() {
@@ -385,21 +411,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     //Function that writes to the database when either button is clicked
-    public void writeToDatabase(double longitude, double latitude, int hour, int min) {
+    public static void writeToDatabase (double longitude, double latitude, int hour, int min) {
         if (leavingClicked.equals(true)) {
             AvailableSpot newAvailableSpot = new AvailableSpot(longitude, latitude, hour, min);
             String key = mDatabase.child("available_spots").push().getKey();
             newAvailableSpot.writeGeofireLocationToDatabase(mDatabase, key);
-            mDatabase.child("Available Spots Attributes").child(key).setValue(newAvailableSpot);
+            mDatabase.child("available_spots").child(key).setValue(newAvailableSpot);
+            lastKey = key;
         }
         else if (searchingClicked.equals(true)) {
             RequestedSpot newRequestedSpot = new RequestedSpot (longitude, latitude, hour, min);
             String key = mDatabase.child("requested_spots").push().getKey();
             newRequestedSpot.writeGeofireLocationToDatabase(mDatabase, key);
+            mDatabase.child("requested_spots").child(key).setValue(newRequestedSpot);
             // Navigation logic (...)
             // Once they have reached destination:
-           // destinationReachedDialog();
-            // mDatabase.child("requested_spots").child(key).setValue(newRequestedSpot);
+            // destinationReachedDialog();
         }
 
     }
@@ -429,7 +456,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         pendingIntent = PendingIntent.getBroadcast(MapsActivity.this, 0, myIntent, 0);
         alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
 
-        Toast.makeText(MapsActivity.this, "Your information has been recorded", Toast.LENGTH_LONG).show();
+        Toast.makeText(MapsActivity.this, "Your information has been recorded", Toast.LENGTH_SHORT).show();
     }
 
     //JAMES ADDITION
@@ -445,10 +472,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             //final View v = findViewById(R.id.displayTimePicker);
             new AlertDialog.Builder(MapsActivity.this)
                     .setTitle("You are set to leave at " + hour + ":" + alarmMinute +" "+AmPm+" " )
-                    .setMessage("Do you need more time ?")
+                    .setMessage("Do you need more time?")
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-
+                            moreTime = true;
                             Make_visible();
                             dialogShownOnce = false;
                         }
@@ -519,14 +546,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * rerouted to the landing page. If they were not, we will return them to the map to choose another
      * available space.
      */
-    private void destinationReachedDialog() {
-        AlertDialog.Builder d = new AlertDialog.Builder(MapsActivity.instance());
-         d.setTitle("Destination reached! Did you find parking?")
+    private void destinationReachedDialog(final double lat, final double lng) {
+        final AlertDialog.Builder d = new AlertDialog.Builder(MapsActivity.instance());
+        d.setTitle("Destination reached! Did you find parking?")
                 .setNeutralButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // User has parked their car. Reroute them to the homepage.
+                        //User has parked their car. Reroute them to the homepage.
                         //showLandingPage(); <<this crashes
+
+                        //Parking spot chosen is now occupied by the user -- remove from database
+                        removeFromDatabase(lat, lng);
+                        //Thank user for using app?
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -535,44 +566,97 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         // User did not find parking where we had directed them to. Return to
                         // map to let user choose another available spot
                         // startPlacePickerActivity(); << this func returns nothing call gotoparking
+
+                        //Parking spot chosen was unavailable -- remove from database
+                        removeFromDatabase(lat, lng);
+                        //Remove marker from chosen spot
+
+                        //Ask if user wants another spot
+                        d.setTitle("Would you like to search for another parking spot?")
+                                .setNeutralButton("Yes", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        //Get new spot
+                                        ButtonSwitcher = 2;
+                                        searchingClicked = true;
+                                        leavingClicked = false;
+                                        startPlacePickerActivity();
+                                    }
+                                })
+                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        //Do nothing, thank user for using app and go back to landing page
+                                    }
+                                }).show();
                     }
                 }).show();
     }
 
+    public static void removeFromDatabase(double lat, double lng) {
 
-    //sets local User variable to object returned from database
-    private void currentUser(User u){
-        user = u;
-         System.out.println(user.getCarType() + " " + user.getEmail() +
-                " " + user.getName() +" "+ user.getPoints() + " " +user.getId());
+        final double l = lng;
+        Query availQuery = mDatabase.child("available_spots").orderByChild("latitude").equalTo(lat);
 
+        availQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                    System.out.println(snapshot);
+                    AvailableSpot s = snapshot.getValue(AvailableSpot.class);
+                    if (s.getLongitude() == l) {
+
+                        String key = snapshot.getKey();
+                        snapshot.getRef().removeValue();
+
+                        //Remove from geofire_locations in addition to available_spots
+                        Query geoQuery = mDatabase.child("geofire_locations").child("available").orderByKey().equalTo(key);
+
+                        geoQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot geoDataSnapshot) {
+                                for (DataSnapshot geoSnapshot: geoDataSnapshot.getChildren())
+                                    geoSnapshot.getRef().removeValue();
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                                System.err.println(databaseError);
+                            }
+                        });
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.err.println(databaseError);
+            }
+        });
     }
 
-    //get's the current users information from Database
-    private void getCurrentUser(){
-        User user = new User ();
-        if (user.setCurrentUserId()) {
-            final FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference mRef = database.getReference("users").child(user.getId()); //reference to Users/id
-            mRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    User user1 = dataSnapshot.getValue(User.class); //return value as User object
-                    MapsActivity x = new MapsActivity();
-                    x.currentUser(user1);
-                    String p = Integer.toString(user1.getPoints());
-                    points.setText(p);
-                }
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    System.out.println("GETTING THE USER INFORMATION FAILED");
-
-                }
-            });
+    //given a set of Latitude and longitude, it returns a string containing an address
+    private String toAddress(double lat, double lng){
+        String full_address = "null";
+        Geocoder geocoder;
+        List<Address> addresses;
+        geocoder = new Geocoder(MapsActivity.instance(), Locale.getDefault());
+        try {
+            addresses = geocoder.getFromLocation(lat, lng, 1);
+            if (addresses != null && addresses.size() > 0) {
+                String address = addresses.get(0).getAddressLine(0);
+                String city = addresses.get(0).getLocality();
+                String state = addresses.get(0).getAdminArea();
+                String country = addresses.get(0).getCountryName();
+                String zipcode  = addresses.get(0).getPostalCode();
+                String knownName = addresses.get(0).getFeatureName();
+                System.out.println("address is not null");
+                full_address = address + " " + state + " " + zipcode;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
+        return full_address;
     }
 
 }
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
