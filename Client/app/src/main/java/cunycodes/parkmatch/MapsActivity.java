@@ -101,6 +101,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapFragment.getMapAsync(this);
 
         points = (TextView)findViewById(R.id.tvPointNum);
+        user = new User ();
         getCurrentUser();
 
          //Gives clickable functionality to "LEAVING" Button
@@ -287,6 +288,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         String buttonAddress = "Your car is at " + address;
         enterCurrentLocation.setText(buttonAddress);
         */
+
+       //Gives user 1 point for giving a spot
+
     }
 
     //JAME'S NEW ADDITION
@@ -391,11 +395,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             String key = mDatabase.child("available_spots").push().getKey();
             newAvailableSpot.writeGeofireLocationToDatabase(mDatabase, key);
             mDatabase.child("Available Spots Attributes").child(key).setValue(newAvailableSpot);
+            if(!pointsManager("add")) System.out.println("ERROR WITH POINTS MANAGER");
         }
         else if (searchingClicked.equals(true)) {
             RequestedSpot newRequestedSpot = new RequestedSpot (longitude, latitude, hour, min);
             String key = mDatabase.child("requested_spots").push().getKey();
             newRequestedSpot.writeGeofireLocationToDatabase(mDatabase, key);
+            if(!pointsManager("remove")) System.out.println("ERROR WITH POINTS MANAGER");
             // Navigation logic (...)
             // Once they have reached destination:
            // destinationReachedDialog();
@@ -542,7 +548,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //sets local User variable to object returned from database
     private void currentUser(User u){
-        user = u;
+        this.user = u;
          System.out.println(user.getCarType() + " " + user.getEmail() +
                 " " + user.getName() +" "+ user.getPoints() + " " +user.getId());
 
@@ -550,7 +556,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //get's the current users information from Database
     private void getCurrentUser(){
-        User user = new User ();
+        //User us = new User ();
         if (user.setCurrentUserId()) {
             final FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference mRef = database.getReference("users").child(user.getId()); //reference to Users/id
@@ -573,6 +579,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+    //Gives and Removes points for the user
+    private boolean pointsManager(String manage) {
+        //Gives user 1 point for giving a spot
+        if (manage.equals("add")) {
+            user.addPoints();
+            String id = user.getId();
+            mDatabase.child("users").child(id).child("points").setValue(user.getPoints());
+            return true;
+        }else if(manage.equals("remove")){
+            user.subPoints();
+            String id = user.getId();
+            mDatabase.child("users").child(id).child("points").setValue(user.getPoints());
+            return true;
+        }
+
+        return false;
+    }
+
 }
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
