@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.android.gms.fitness.data.Value;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -68,7 +69,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         inst = this;
     }
     /////////////////////////////////////////
-    private static User user;
+    protected static User user;
     public static GoogleMap mMap;
     private static DatabaseReference mDatabase;
     public static int hourLeaving, minLeaving;
@@ -101,6 +102,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapFragment.getMapAsync(this);
 
         points = (TextView)findViewById(R.id.tvPointNum);
+        user = new User ();
         getCurrentUser();
 
          //Gives clickable functionality to "LEAVING" Button
@@ -287,6 +289,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         String buttonAddress = "Your car is at " + address;
         enterCurrentLocation.setText(buttonAddress);
         */
+
+       //Gives user 1 point for giving a spot
+
     }
 
     //JAME'S NEW ADDITION
@@ -370,7 +375,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         String address = x.getAddress(lat,lng);
         AlertDialog.Builder d = new AlertDialog.Builder(MapsActivity.instance());
                d.setTitle("Would you like to park at ")
-                .setMessage(address)
+                .setMessage(address + "\nTIME MARKED: " + RequestedSpot.selectedSpot.getTimeLeaving() + "\nCAR TYPE: " + RequestedSpot.selectedSpot.getCarType())
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                          //NAVIGATION WOULD GO HERE
@@ -391,11 +396,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             String key = mDatabase.child("available_spots").push().getKey();
             newAvailableSpot.writeGeofireLocationToDatabase(mDatabase, key);
             mDatabase.child("Available Spots Attributes").child(key).setValue(newAvailableSpot);
+            if(!pointsManager("add")) System.out.println("ERROR WITH POINTS MANAGER");
         }
         else if (searchingClicked.equals(true)) {
             RequestedSpot newRequestedSpot = new RequestedSpot (longitude, latitude, hour, min);
             String key = mDatabase.child("requested_spots").push().getKey();
             newRequestedSpot.writeGeofireLocationToDatabase(mDatabase, key);
+            if(!pointsManager("remove")) System.out.println("ERROR WITH POINTS MANAGER");
             // Navigation logic (...)
             // Once they have reached destination:
            // destinationReachedDialog();
@@ -530,8 +537,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .setNeutralButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // User has parked their car. Reroute them to the homepage.
-                        //showLandingPage(); <<this crashes
+                        //User has parked their car
+                        //remove a point
+                        if(!pointsManager("remove")) System.out.println("ERROR IN POINTS MANAGER");
+                        //give user who gave a spot a point
+                        giveOtherUserPoints(RequestedSpot.selectedSpot.getUserId());
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -547,7 +557,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //sets local User variable to object returned from database
     private void currentUser(User u){
-        user = u;
+        this.user = u;
          System.out.println(user.getCarType() + " " + user.getEmail() +
                 " " + user.getName() +" "+ user.getPoints() + " " +user.getId());
 
@@ -555,7 +565,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //get's the current users information from Database
     private void getCurrentUser(){
-        User user = new User ();
+        //User us = new User ();
         if (user.setCurrentUserId()) {
             final FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference mRef = database.getReference("users").child(user.getId()); //reference to Users/id
@@ -578,6 +588,47 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+    //gets the other user's point information from the database
+    private void giveOtherUserPoints(String userID){
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference mRef = database.getReference("users").child(userID);//reference to Users/id
+        mRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User user2 = dataSnapshot.getValue(User.class); //return value as User object
+                MapsActivity x = new MapsActivity();
+                x.setOtherUserPoints(user2);
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("UNABLE TO RETRIEVE OTHER USER INFORMATION");
+            }
+        });
+
+    }
+
+    private void setOtherUserPoints(User u){
+        u.addPoints();
+        mDatabase.child("users").child(u.getId()).child("points").setValue(u.getPoints());
+    }
+
+    //Adds or Removes points from the user. Returns false if the wrong string is passed in.
+    private boolean pointsManager(String manage) {
+        //Gives user 1 point for giving a spot
+        if (manage.equals("add")) {
+            user.addPoints();
+            String id = user.getId();
+            mDatabase.child("users").child(id).child("points").setValue(user.getPoints());
+            return true;
+        }else if(manage.equals("remove")){
+            user.subPoints();
+            String id = user.getId();
+            mDatabase.child("users").child(id).child("points").setValue(user.getPoints());
+            return true;
+        }
+
+        return false;
+    }
+
+
 }
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

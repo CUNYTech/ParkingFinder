@@ -7,6 +7,8 @@ import com.google.firebase.auth.FirebaseUser;
 public class User {
     private String name, email, id, carType;
     private int points =0;
+    private final int pointsToAdd = 1;
+    private final int pointsToSub = 1;
 
     //Initializes variables to current user information
     public User () {
@@ -47,6 +49,12 @@ public class User {
     public int getPoints () { return this.points; }
 
     public void setPoints(int p) {points = p;}
+
+    public void addPoints(){
+
+        points = points + pointsToAdd;}
+
+    public void subPoints(){if(points > 0) points = points - pointsToSub;}
 
     public void setCarType(String carType){this.carType = carType;}
 

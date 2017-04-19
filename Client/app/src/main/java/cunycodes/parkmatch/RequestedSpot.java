@@ -14,12 +14,18 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import static android.R.id.list;
 
 public class RequestedSpot {
     private double dlongitude, dlatitude; //coordinates of destination
@@ -30,6 +36,9 @@ public class RequestedSpot {
     private double slatitude; //coordinates of picked available spot
     private LatLng pickedSpot; //object that hold both longitude and latitude
     MapsActivity map = new MapsActivity(); // object to call MapsActivity functions
+    List<String> keys = new ArrayList<>(); //holds list of keys returned
+    List<AvailableSpot> spotsReturned = new ArrayList<>();
+    public static AvailableSpot selectedSpot = new AvailableSpot();
 
     public RequestedSpot () {
     }
@@ -100,17 +109,18 @@ public class RequestedSpot {
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
 
             //The location of a key now matches the query criteria.
-            public void onKeyEntered(String key, GeoLocation location) {
+            public void onKeyEntered(final String key, GeoLocation location) {
                 System.out.println(String.format("Key %s entered the search area at [%f,%f]", key, location.latitude, location.longitude));
+                keys.add(key);
+                getSpotsInfo();
                 //adds the requested marker
                 Marker requested = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(getLatitude(), getLongitude())).title("Requested").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 //adds the available marker
-                Marker available = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(location.latitude, location.longitude)).title("Available").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                final Marker available = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(location.latitude, location.longitude)).title("Available").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
                 requested.showInfoWindow();
-                //(MapsActivity.mMap).animateCamera(CameraUpdateFactory.newLatLng(requested.getPosition()), 250, null);
+                available.showInfoWindow();
                 (MapsActivity.mMap).moveCamera(CameraUpdateFactory.newLatLng(requested.getPosition()));
-                // Zoom in the Google Map
-                (MapsActivity.mMap).animateCamera(CameraUpdateFactory.zoomTo(13));
+                (MapsActivity.mMap).animateCamera(CameraUpdateFactory.zoomTo(13));// Zoom in the Google Map
 
                 (MapsActivity.mMap).setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
                 {
@@ -122,13 +132,27 @@ public class RequestedSpot {
                             slatitude = marker.getPosition().latitude; //this doesn't actually assign Slat/slng
                             slongitude = marker.getPosition().longitude;
                             setPickedLatLng(slatitude,slongitude); //this sets our private variables
+                            //gives the selected key to mapActivity
                             map.SelectLocationMessage(slatitude,slongitude); //calls the dialog from map activity
+                            printKeys();
+
+                            //iterate over spots to match with key
+                            for(AvailableSpot spot : spotsReturned){
+                                if(spot.getLatitude() == slatitude && spot.getLongitude() == slongitude)
+                                {
+                                    selectedSpot = spot;
+                                    System.out.println("Selected spot time: " + selectedSpot.getTimeLeaving() + " size: " + spotsReturned.size());
+                                }
+                            }
+
+
                         }
                         return true;
                     }
 
                 });
             }
+
 
             //The location of a key no longer matches the query criteria.
             public void onKeyExited(String key) {
@@ -195,6 +219,38 @@ public class RequestedSpot {
         return full_address;
     }
 
+    //delete
+    private void printKeys(){
+        if (keys.size() > 0){
+            for(String k: keys){
+                System.out.println(k);
+            }
+        }
+    }
 
+    //sets Local available spot object to the one returned from the database. This object contains information about the
+    //selected spot
+    public void getSpotsInfo (){
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        if(keys.size() > 0) {
+            for(String k: keys) {
+                DatabaseReference mRef = database.getReference("Available Spots Attributes").child(k); //reference to Users/id
+                mRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        AvailableSpot spot1 = dataSnapshot.getValue(AvailableSpot.class); //return value as User object
+                        spotsReturned.add(spot1);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        System.out.println("GETTING AVAILABLE SPOT INFORMATION FAILED");
+
+                    }
+                });
+            }
+        }
+
+    }
 
 }
