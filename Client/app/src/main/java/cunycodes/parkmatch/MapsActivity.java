@@ -539,8 +539,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         if(!pointsManager("remove")) System.out.println("ERROR IN POINTS MANAGER");
                         //give user who gave a spot a point
                         giveOtherUserPoints(selectedSpot.getUserId());
-
-
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -629,6 +627,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         return false;
     }
 
+    //sets Local available spot object to the one returned from the database. This object contains information about the
+    //selected spot 
     public void getSelectedSpotInfo (){
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference mRef = database.getReference("Available Spots Attributes").child(selectedPlaceKey); //reference to Users/id
