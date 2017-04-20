@@ -8,6 +8,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 
 
+//comment
+
 public class AvailableSpot {
     private double longitude, latitude;
     private int hourLeaving, minLeaving;
