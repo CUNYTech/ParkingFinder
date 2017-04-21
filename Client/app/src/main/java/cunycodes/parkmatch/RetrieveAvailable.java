@@ -112,7 +112,7 @@ public class RetrieveAvailable {
     public void displayAvailableSpot (String key, GeoLocation selected) {
         final String availableKey = key;
         //adds the available marker
-        Marker availableSpot = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(selected.latitude, selected.longitude)).title("Available"));
+        Marker availableSpot = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(selected.latitude, selected.longitude)).title("Available").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
 
         (MapsActivity.mMap).animateCamera(CameraUpdateFactory.zoomTo(13));
 
