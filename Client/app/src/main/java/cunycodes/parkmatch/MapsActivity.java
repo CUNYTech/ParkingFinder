@@ -53,7 +53,7 @@ import java.util.Locale;
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
 
-    //sets up global variables for  the alarm
+    //stets up global variables for  the alarm
     AlarmManager alarmManager;
     private PendingIntent pendingIntent;
     // private TimePicker alarmTimePicker;
@@ -165,6 +165,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        points = (TextView)findViewById(R.id.tvPointNum);
+        user = new User ();
+        getCurrentUser();
+
         //Gives clickable functionality to "LEAVING" Button
         Button LeavingButton = (Button) findViewById(R.id.Leaving);
         LeavingButton.setOnClickListener(new View.OnClickListener() {
@@ -201,6 +205,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         //ToggleButton alarmToggle = (ToggleButton) findViewById(R.id.alarmToggle);
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
     }
+
 
 
     /**
@@ -425,14 +430,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             newAvailableSpot.writeGeofireLocationToDatabase(mDatabase, key);
             mDatabase.child("available_spots").child(key).setValue(newAvailableSpot);
             lastKey = key;
-            if(!pointsManager("add")) System.out.println("ERROR WITH POINTS MANAGER");
         }
         else if (searchingClicked.equals(true)) {
             RequestedSpot newRequestedSpot = new RequestedSpot (longitude, latitude);
             String key = mDatabase.child("requested_spots").push().getKey();
             newRequestedSpot.writeGeofireLocationToDatabase(mDatabase, key);
             mDatabase.child("requested_spots").child(key).setValue(newRequestedSpot);
-            if(!pointsManager("remove")) System.out.println("ERROR WITH POINTS MANAGER");
         }
 
     }
