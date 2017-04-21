@@ -75,9 +75,10 @@
             android:layout_above="@+id/Leaving"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="37dp"
-            android:background="@android:color/holo_orange_light"
+            android:background="@drawable/rounded_button"
             android:onClick="showTimePickerDialog"
             android:text="Select Time Leaving"
+            android:textColor="#191F17"
             android:visibility="invisible" />
 
     </RelativeLayout>

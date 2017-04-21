@@ -436,7 +436,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         pendingIntent = PendingIntent.getBroadcast(MapsActivity.this, 0, myIntent, 0);
         alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
 
-        Toast.makeText(MapsActivity.this, "Your information has been recorded", Toast.LENGTH_LONG).show();
     }
 
     //JAMES ADDITION

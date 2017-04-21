@@ -116,9 +116,8 @@ public class RequestedSpot {
                 //adds the requested marker
                 Marker requested = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(getLatitude(), getLongitude())).title("Requested").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 //adds the available marker
-                final Marker available = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(location.latitude, location.longitude)).title("Available").icon(@drawable/mark));
+                final Marker available = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(location.latitude, location.longitude)).title("Available").icon(BitmapDescriptorFactory.fromResource(R.drawable.mark0)));
                 requested.showInfoWindow();
-                available.showInfoWindow();
                 (MapsActivity.mMap).moveCamera(CameraUpdateFactory.newLatLng(requested.getPosition()));
                 (MapsActivity.mMap).animateCamera(CameraUpdateFactory.zoomTo(13));// Zoom in the Google Map
 
@@ -134,7 +133,6 @@ public class RequestedSpot {
                             setPickedLatLng(slatitude,slongitude); //this sets our private variables
                             //gives the selected key to mapActivity
                             map.SelectLocationMessage(slatitude,slongitude); //calls the dialog from map activity
-                            printKeys();
 
                             //iterate over spots to match with key
                             for(AvailableSpot spot : spotsReturned){
