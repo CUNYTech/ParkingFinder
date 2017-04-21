@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_register"
     android:layout_width="match_parent"
@@ -20,6 +21,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
+        android:textColor="@color/offWhite"
         android:ems="10"
         android:hint="Name"
         android:inputType="textPersonName" />
@@ -49,6 +51,7 @@
         android:layout_alignParentStart="true"
         android:layout_below="@+id/editTextCarType"
         android:ems="10"
+        android:textColor="@color/offWhite"
         android:hint="Email Address"
         android:inputType="textEmailAddress" />
 
@@ -62,6 +65,7 @@
         android:layout_alignParentStart="true"
         android:layout_below="@+id/editTextEmailAddress"
         android:ems="10"
+        android:textColor="@color/offWhite"
         android:hint="Password"
         android:inputType="textPassword" />
 
@@ -73,7 +77,9 @@
         android:text="Register"
         android:layout_below="@+id/editTextPassword"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="15dp" />
+        android:layout_marginTop="15dp"
+        android:textColor="#000000"
+        />
 
     <TextView
         android:id="@+id/textViewSignIn"
@@ -84,4 +90,14 @@
         android:text="Already Registered? Sign in here"
         android:textAlignment="center"
         android:textColor="#DEB182" />
+
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        app:srcCompat="@drawable/pm_cross"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
 </RelativeLayout>

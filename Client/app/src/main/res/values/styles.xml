@@ -5,9 +5,13 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimaryDark">#191F17</item>
         <item name="colorAccent">#B76246</item>
-        <item name="android:textColorHint">@color/wallet_secondary_text_holo_dark</item>
+        <item name="android:textColorHint">#F9F2E2</item>
+        <item name="android:textColor">#DEB182</item>
     </style>
 
+    <style name="offWhite">
+        <item name="android:textColor">#DEB182</item>
+    </style>
 
 
     <style name="AppTheme.NoActionBar">
