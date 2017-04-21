@@ -61,7 +61,7 @@ public class Activity_register extends AppCompatActivity implements View.OnClick
 
 
 
-        String[] items = new String[]{"Type of Car","Campervans","Compact Car", "Convertibles","Mid Size Car","Microcar", "Minivans","Pickup trucks","Roadsters","Station Wagons","Trucks","Vans", "Wagons", "SUV" ,"Other"};
+        String[] items = new String[]{"Type of Car","Camper Van","Compact Car", "Convertible","Mid-Sized Car","Microcar", "Minivan", "Roadster","Station Wagon","Truck","Van", "Wagon", "SUV" ,"Other"};
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, items);
         dropdown.setAdapter(adapter);
     }
