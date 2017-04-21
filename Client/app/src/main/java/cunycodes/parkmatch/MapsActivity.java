@@ -1,5 +1,6 @@
 package cunycodes.parkmatch;
 
+import android.app.ActionBar;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -101,7 +102,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        points = (TextView)findViewById(R.id.tvPointNum);
         user = new User ();
         getCurrentUser();
 
@@ -484,11 +484,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Toast.makeText(MapsActivity.this, "Account Settings", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.nav_settings:
-
                 // opens App setting
                 Intent SettingsIntent = new Intent(this, SettingsActivity.class);
                 startActivity(SettingsIntent);
-                Toast.makeText(MapsActivity.this, "Settings", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.nav_logout:   //when user clicks "Log out" we delete all cached app data.
                 File cache = getCacheDir();
@@ -576,7 +574,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     MapsActivity x = new MapsActivity();
                     x.currentUser(user1);
                     String p = Integer.toString(user1.getPoints());
-                    points.setText(p);
+                    x.instance().setTitle("POINTS: " + p);
+
                 }
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
