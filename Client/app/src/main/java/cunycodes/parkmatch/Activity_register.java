@@ -25,8 +25,8 @@ import com.google.firebase.database.FirebaseDatabase;
 public class Activity_register extends AppCompatActivity implements View.OnClickListener {
 
     private EditText editTextName;
-   // private String editTextCartype;
-   private Spinner dropdown;
+    // private String editTextCartype;
+    private Spinner dropdown;
     private EditText editTextEmailAddress;
     private EditText editTextPassword;
     private Button registerButton;
@@ -46,7 +46,7 @@ public class Activity_register extends AppCompatActivity implements View.OnClick
         mDatabase = FirebaseDatabase.getInstance().getReference();
         progressDialog = new ProgressDialog((this));
         editTextName = (EditText) findViewById(R.id.editTextName);
-       // editTextCartype = (TextView) findViewById(R.id.editTextCarType);
+        // editTextCartype = (TextView) findViewById(R.id.editTextCarType);
 
         dropdown=(Spinner)findViewById(R.id.editTextCarType);
 
@@ -142,7 +142,7 @@ public class Activity_register extends AppCompatActivity implements View.OnClick
                 String email = editTextEmailAddress.getText().toString().trim();
                 String id = currentUser.getUid();
 
-                User newUser = new User (name, carType, email, id);
+                User newUser = new User (name, email, id, carType);
 
                 mDatabase.child("users").child(id).setValue(newUser);
             }
