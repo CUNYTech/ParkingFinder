@@ -39,6 +39,7 @@ public class Activity_register extends AppCompatActivity implements View.OnClick
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.setTitle("Register");
         setContentView(R.layout.activity_register);
 
         // initialize firebase

@@ -24,7 +24,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -52,29 +51,13 @@ import java.util.Locale;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-
-    //sets up global variables for  the alarm
     AlarmManager alarmManager;
     private PendingIntent pendingIntent;
     private static MapsActivity inst;
     static int alarmHour;
     static int alarmMinute;
-    private TextView points;
     protected static User user;
-
     Boolean dialogShownOnce = false;
-
-    public static MapsActivity instance() {
-        return inst;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        inst = this;
-    }
-    /////////////////////////////////////////
-
     public static GoogleMap mMap;
     private static DatabaseReference mDatabase;
     public static int hourLeaving, minLeaving;
@@ -82,14 +65,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public static String lastKey="";
     private RetrieveAvailable retrieveAvailableParkingSpots;
     private AvailableSpot userSelectedSpot;
-
-    //Variable that confirms a location was picked by User.
-    private final int REQUEST_CODE_PLACEPICKER = 1;
-
-    // so we can switch from gotoParking to displaySelectedPlaceFromPlacePicker  when calling onActivityResult
-    int ButtonSwitcher = 0;
+    private final int REQUEST_CODE_PLACEPICKER = 1;//Variable that confirms a location was picked by User.
+    int ButtonSwitcher = 0;// so we can switch from gotoParking to displaySelectedPlaceFromPlacePicker  when calling onActivityResult
     public static Boolean leavingClicked = false, searchingClicked = false, moreTime = false;
     final int removeTime = 5; //remove spots that are this minute old
+
+    public static MapsActivity instance() { return inst; }
+
+    public void onStart() {super.onStart(); inst = this; }
 
     //Function that gets called when Map Activity begins
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,7 +146,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        points = (TextView)findViewById(R.id.tvPointNum);
         user = new User ();
         getCurrentUser();
 
@@ -257,9 +239,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             googleMap.addMarker(new MarkerOptions().position(new LatLng(current_latitude, current_longitude)).title("You are here!"));
         }
     }
-
-    // place a marker in a location close to the users current position
-    double Nextblock = 0.0012; //why do we need this
 
     //Function that stores destination location (where the person wants to park) and asks for the time they need the spot
     public void gotoParking(Intent data) {
@@ -463,8 +442,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Intent myIntent = new Intent(MapsActivity.this, AlarmReceiver.class);
         pendingIntent = PendingIntent.getBroadcast(MapsActivity.this, 0, myIntent, 0);
         alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
-
-        //Toast.makeText(MapsActivity.this, "Your information has been recorded", Toast.LENGTH_SHORT).show();
         displayThankYou(0);
     }
 
@@ -512,7 +489,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Toast.makeText(MapsActivity.this, "Account Settings", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.nav_settings:
-                Toast.makeText(MapsActivity.this, "Settings", Toast.LENGTH_LONG).show();
+                // opens App setting
+                Intent SettingsIntent = new Intent(this, SettingsActivity.class);
+                startActivity(SettingsIntent);
                 return true;
             case R.id.nav_logout:   //when user clicks "Log out" we delete all cached app data.
                 File cache = getCacheDir();
@@ -752,7 +731,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     MapsActivity x = new MapsActivity();
                     x.currentUser(user1);
                     String p = Integer.toString(user1.getPoints());
-                    points.setText(p);
+                    x.instance().setTitle("POINTS: " + p);
+
                 }
                 @Override
                 public void onCancelled(DatabaseError databaseError) {

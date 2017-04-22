@@ -137,7 +137,7 @@ public class RetrieveAvailable {
 
     public void displayRequestedSpot () {
         //adds the requested marker
-        Marker requestedSpot = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(requested.latitude, requested.longitude)).title("Requested").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+        Marker requestedSpot = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(requested.latitude, requested.longitude)).title("Requested").icon(BitmapDescriptorFactory.fromResource(R.drawable.mark2)));
         requestedSpot.showInfoWindow();
         (MapsActivity.mMap).moveCamera(CameraUpdateFactory.newLatLng(requestedSpot.getPosition()));
         // Zoom in the Google Map
@@ -147,7 +147,7 @@ public class RetrieveAvailable {
     public void displayAvailableSpot (String key, GeoLocation selected) {
         final String availableKey = key;
         //adds the available marker
-        Marker availableSpot = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(selected.latitude, selected.longitude)).title("Available").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
+        Marker availableSpot = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(selected.latitude, selected.longitude)).title("Available").icon(BitmapDescriptorFactory.fromResource(R.drawable.mark0)));
 
         (MapsActivity.mMap).animateCamera(CameraUpdateFactory.zoomTo(13));
 

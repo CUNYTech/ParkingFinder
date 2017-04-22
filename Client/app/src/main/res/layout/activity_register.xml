@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_register"
     android:layout_width="match_parent"
@@ -8,7 +9,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:background="@drawable/blackbackground"
+    android:background="#191F17"
     tools:context="cunycodes.parkmatch.LoginActivity">
 
     <EditText
@@ -20,6 +21,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
+        android:textColor="@color/offWhite"
         android:ems="10"
         android:hint="Name"
         android:inputType="textPersonName" />
@@ -27,7 +29,6 @@
     <Spinner
 
         android:spinnerMode="dropdown"
-
         android:id="@+id/editTextCarType"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -37,6 +38,7 @@
         android:layout_alignParentStart="true"
         android:layout_below="@+id/editTextName"
         android:ems="10"
+
          />
 
     <EditText
@@ -49,6 +51,7 @@
         android:layout_alignParentStart="true"
         android:layout_below="@+id/editTextCarType"
         android:ems="10"
+        android:textColor="@color/offWhite"
         android:hint="Email Address"
         android:inputType="textEmailAddress" />
 
@@ -62,6 +65,7 @@
         android:layout_alignParentStart="true"
         android:layout_below="@+id/editTextEmailAddress"
         android:ems="10"
+        android:textColor="@color/offWhite"
         android:hint="Password"
         android:inputType="textPassword" />
 
@@ -69,10 +73,13 @@
         android:id="@+id/registerButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@drawable/rounded_button"
+        android:text="Register"
         android:layout_below="@+id/editTextPassword"
         android:layout_centerHorizontal="true"
-        android:background="@android:color/holo_orange_light"
-        android:text="Register" />
+        android:layout_marginTop="15dp"
+        android:textColor="#000000"
+        />
 
     <TextView
         android:id="@+id/textViewSignIn"
@@ -82,5 +89,15 @@
         android:layout_margin="15dp"
         android:text="Already Registered? Sign in here"
         android:textAlignment="center"
-        tools:textColor="@android:color/holo_orange_dark" />
+        android:textColor="#DEB182" />
+
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        app:srcCompat="@drawable/pm_cross"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
 </RelativeLayout>
