@@ -53,12 +53,10 @@ import java.util.Locale;
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
 
-    //stets up global variables for  the alarm
+    //sets up global variables for  the alarm
     AlarmManager alarmManager;
     private PendingIntent pendingIntent;
-    // private TimePicker alarmTimePicker;
     private static MapsActivity inst;
-    //private TextView alarmTextView;
     static int alarmHour;
     static int alarmMinute;
     private TextView points;
@@ -430,12 +428,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             newAvailableSpot.writeGeofireLocationToDatabase(mDatabase, key);
             mDatabase.child("available_spots").child(key).setValue(newAvailableSpot);
             lastKey = key;
+            if (!pointsManager("add")) System.out.println("ERROR IN POINTS MANAGER");
         }
         else if (searchingClicked.equals(true)) {
             RequestedSpot newRequestedSpot = new RequestedSpot (longitude, latitude);
             String key = mDatabase.child("requested_spots").push().getKey();
             newRequestedSpot.writeGeofireLocationToDatabase(mDatabase, key);
             mDatabase.child("requested_spots").child(key).setValue(newRequestedSpot);
+            if (!pointsManager("remove")) System.out.println("ERROR IN POINTS MANAGER");
         }
 
     }
@@ -767,7 +767,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //gets the other user's point information from the database
     private void giveOtherUserPoints(final String userID){
-        final FirebaseDatabase database = FirebaseDatabase.getInstance();
         Query mRef = mDatabase.child("users").orderByKey().equalTo(userID);
         mRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -795,7 +794,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     //Adds or Removes points from the user. Returns false if the wrong string is passed in.
-    private boolean pointsManager(String manage) {
+    private static boolean pointsManager(String manage) {
         //Gives user 1 point for giving a spot
         if (manage.equals("add")) {
             user.addPoints();
