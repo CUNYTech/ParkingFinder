@@ -114,7 +114,7 @@ public class RequestedSpot {
                 keys.add(key);
                 getSpotsInfo();
                 //adds the requested marker
-                Marker requested = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(getLatitude(), getLongitude())).title("Requested").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                Marker requested = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(getLatitude(), getLongitude())).title("Requested").icon(BitmapDescriptorFactory.fromResource(R.drawable.mark2)));
                 //adds the available marker
                 final Marker available = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(location.latitude, location.longitude)).title("Available").icon(BitmapDescriptorFactory.fromResource(R.drawable.mark0)));
                 requested.showInfoWindow();
