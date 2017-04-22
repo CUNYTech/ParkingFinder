@@ -291,7 +291,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     //Opens up the GoogleMaps PlacePicker when Buttons are clicked
-    private void startPlacePickerActivity() {
+    public void startPlacePickerActivity() {
         PlacePicker.IntentBuilder intentBuilder = new PlacePicker.IntentBuilder();
         // this would only work if you have your Google Places API working
         try {
@@ -562,6 +562,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .setNeutralButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        //get current user
+                        getCurrentUser();
                         //remove a point from user that used app to find spot
                         if(!pointsManager("remove")) System.out.println("ERROR IN POINTS MANAGER");
                         //give user who gave a spot a point
@@ -742,14 +744,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //get's the current users information from Database
     private void getCurrentUser(){
-        //User us = new User ();
         if (user.setCurrentUserId()) {
-            final FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference mRef = database.getReference("users").child(user.getId()); //reference to Users/id
+            Query mRef = mDatabase.child("users").orderByKey().equalTo(user.getId());
             mRef.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    User user1 = dataSnapshot.getValue(User.class); //return value as User object
+                    User user1 = dataSnapshot.child(user.getId()).getValue(User.class); //return value as User object
                     MapsActivity x = new MapsActivity();
                     x.currentUser(user1);
                     String p = Integer.toString(user1.getPoints());
@@ -766,14 +766,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     //gets the other user's point information from the database
-    private void giveOtherUserPoints(String userID){
+    private void giveOtherUserPoints(final String userID){
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference mRef = database.getReference("users").child(userID);//reference to Users/id
+        Query mRef = mDatabase.child("users").orderByKey().equalTo(userID);
         mRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                User user2 = dataSnapshot.getValue(User.class); //return value as User object
                 MapsActivity x = new MapsActivity();
+                User user2 = dataSnapshot.child(userID).getValue(User.class); //return value as User object
                 x.setOtherUserPoints(user2);
             }
             @Override
@@ -785,8 +785,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void setOtherUserPoints(User u){
-        u.addPoints();
-        mDatabase.child("users").child(u.getId()).child("points").setValue(u.getPoints());
+        if (u != null) {
+            u.addPoints();
+            mDatabase.child("users").child(u.getId()).child("points").setValue(u.getPoints());
+            System.out.println("USER IS NOT NULL");
+        }
+        else
+            System.out.println("USER IS NULL");
     }
 
     //Adds or Removes points from the user. Returns false if the wrong string is passed in.

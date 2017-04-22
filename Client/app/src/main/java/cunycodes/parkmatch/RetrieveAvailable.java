@@ -1,5 +1,9 @@
 package cunycodes.parkmatch;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.os.CountDownTimer;
+
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
@@ -45,7 +49,7 @@ public class RetrieveAvailable {
         final GeoFire geoFire = new GeoFire(mDatabase.child("geofire_locations").child("available"));
         // creates a new query around [latitude, longitude] with a radius of 0.5 kilometers
         final GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(requested.latitude, requested.longitude), 0.5);
-        System.out.println("In geoQuery");
+        MapsActivity.mMap.clear();
         displayRequestedSpot();
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             //The location of a key now matches the query criteria
@@ -98,6 +102,37 @@ public class RetrieveAvailable {
                 System.err.println("There was an error with this query: " + error);
             }
         });
+
+        //If no available parking spots have been found after ten seconds, a popup appears to ask the user to either wait or choose a new location to park at
+        new CountDownTimer(10000, 1000) {
+
+            @Override
+            public void onTick(long millisUntilFinished) {
+            }
+
+            @Override
+            public void onFinish() {
+                if (totalAvailable == 0) {
+                    AlertDialog.Builder dialog = new AlertDialog.Builder(MapsActivity.instance())
+                            .setTitle("No Parking Spots Found")
+                            .setMessage("Please continue to wait or modify the location of your requested parking spot!")
+                            .setPositiveButton("Wait", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            })
+                            .setNegativeButton("New Spot", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    MapsActivity.searchingClicked = true;
+                                    MapsActivity.leavingClicked = false;
+                                    MapsActivity.instance().startPlacePickerActivity();
+                                }
+                            });
+
+                    final AlertDialog alert = dialog.create();
+                    alert.show();
+                }
+            }
+        }.start();
     }
 
     public void displayRequestedSpot () {
@@ -116,14 +151,13 @@ public class RetrieveAvailable {
 
         (MapsActivity.mMap).animateCamera(CameraUpdateFactory.zoomTo(13));
 
-        (MapsActivity.mMap).setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
-        {
+        (MapsActivity.mMap).setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                if(marker.getTitle().equals("Available")) { // if marker source is clicked
+                if (marker.getTitle().equals("Available")) { // if marker source is clicked
                     System.out.println("Available marker clicked");
                     //Set selected member variable to appropriate available spot location and display dialog once data is properly set
-                    setSelectedByMarkerClick (availableKey);
+                    setSelectedByMarkerClick(availableKey);
                 }
                 return true;
             }
