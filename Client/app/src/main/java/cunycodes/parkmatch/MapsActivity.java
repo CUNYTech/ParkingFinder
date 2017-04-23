@@ -34,6 +34,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DataSnapshot;
@@ -236,7 +237,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
             // Zoom in the Google Map
             googleMap.animateCamera(CameraUpdateFactory.zoomTo(17));
-            googleMap.addMarker(new MarkerOptions().position(new LatLng(current_latitude, current_longitude)).title("You are here!"));
+            googleMap.addMarker(new MarkerOptions().position(new LatLng(current_latitude, current_longitude)).title("You are here!").icon(BitmapDescriptorFactory.fromResource(R.drawable.mark)));
         }
     }
 
@@ -701,7 +702,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         //if type == 0, the user is thanked for entering information using the 'give a spot' button
         //otherwise, user is simply thanked for using ParkMatch
         if (type == 0)
-             dialog = new AlertDialog.Builder(this)
+            dialog = new AlertDialog.Builder(this)
                     .setTitle("Thank you for using ParkMatch")
                     .setMessage("Your information has been recorded!");
         else
@@ -805,6 +806,4 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         return false;
     }
-
-
 }
