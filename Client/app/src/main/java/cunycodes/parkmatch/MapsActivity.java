@@ -89,7 +89,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     // so we can switch from gotoParking to displaySelectedPlaceFromPlacePicker  when calling onActivityResult
     int ButtonSwitcher = 0;
     public static Boolean leavingClicked = false, searchingClicked = false, moreTime = false;
-
+    final int removeTime = 5; //remove spots that are this minute old
 
     //Function that gets called when Map Activity begins
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,11 +102,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         int hour = c.get(Calendar.HOUR_OF_DAY);
         int minute = c.get(Calendar.MINUTE);
 
-        if (minute >= 0 && minute < 5) {
+        if (minute >= 0 && minute < removeTime) {
             hour--;
-            minute = (minute - 5) + 60;
+            minute = (minute - removeTime) + 60;
         } else
-            minute = minute - 5;
+            minute = minute - removeTime;
 
         String time = Integer.toString(hour)+":"+Integer.toString(minute);
         //this.cleanDatabase(time);
@@ -445,7 +445,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             String key = mDatabase.child("requested_spots").push().getKey();
             newRequestedSpot.writeGeofireLocationToDatabase(mDatabase, key);
             mDatabase.child("requested_spots").child(key).setValue(newRequestedSpot);
-            if (!pointsManager("remove")) System.out.println("ERROR IN POINTS MANAGER");
         }
 
     }
@@ -812,11 +811,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             user.addPoints();
             String id = user.getId();
             mDatabase.child("users").child(id).child("points").setValue(user.getPoints());
+            System.out.println("POINT ADDED! " + user.getName());
             return true;
         }else if(manage.equals("remove")){
             user.subPoints();
             String id = user.getId();
             mDatabase.child("users").child(id).child("points").setValue(user.getPoints());
+            System.out.println("POINT REMOVED! " + user.getName());
             return true;
         }
 
