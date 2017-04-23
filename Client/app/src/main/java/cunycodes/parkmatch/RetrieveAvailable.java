@@ -29,6 +29,7 @@ public class RetrieveAvailable {
     private HashMap<String, GeoLocation> availableSpots;
     private int totalAvailable;
     AvailableSpot selected;
+    final private double searchRadius = 3.2; //sarch radius is in Km
 
     public RetrieveAvailable (GeoLocation requested) {
         this.requested = requested;
@@ -48,7 +49,7 @@ public class RetrieveAvailable {
     public void retrieveAvailableSpots (DatabaseReference mDatabase) {
         final GeoFire geoFire = new GeoFire(mDatabase.child("geofire_locations").child("available"));
         // creates a new query around [latitude, longitude] with a radius of 0.5 kilometers
-        final GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(requested.latitude, requested.longitude), 0.5);
+        final GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(requested.latitude, requested.longitude), searchRadius);
         MapsActivity.mMap.clear();
         displayRequestedSpot();
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
