@@ -29,7 +29,7 @@ public class RetrieveAvailable {
     private HashMap<String, GeoLocation> availableSpots;
     private int totalAvailable;
     AvailableSpot selected;
-    final private double searchRadius = 3.2; //sarch radius is in Km
+    final private double searchRadius = 3.2; //search radius is in Km
 
     public RetrieveAvailable (GeoLocation requested) {
         this.requested = requested;
