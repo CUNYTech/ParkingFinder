@@ -1,15 +1,11 @@
 package cunycodes.parkmatch;
 
-import android.app.AlertDialog;
-import android.widget.Toast;
-
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 
 public class AvailableSpot {
@@ -18,24 +14,20 @@ public class AvailableSpot {
     private String timeLeaving;
     private GeoLocation emptySpot;
     private String userId;
+    private String carType;
 
     public AvailableSpot () {
     }
 
     public AvailableSpot (double longitude, double latitude, int hourLeaving, int minLeaving) {
-        //PASS AS LATITUDE AND LONGITUDE not vice versa
         this.emptySpot = new GeoLocation(latitude, longitude);
-        setUserId();
-        // Add Geolocation of empty space to database
-        //rootRef = FirebaseDatabase.getInstance().getReference();
-        //String geoKey = mDatabase.child("GeoFire Locations").push().getKey();
-
         this.longitude = longitude;
         this.latitude = latitude;
         this.hourLeaving = hourLeaving;
         this.minLeaving = minLeaving;
         this.timeLeaving = Integer.toString(hourLeaving)+":"+Integer.toString(minLeaving);
-
+        this.carType = MapsActivity.user.getCarType();
+        setUserId();
     }
 
     public double getLongitude () { return this.longitude; }
@@ -50,6 +42,8 @@ public class AvailableSpot {
 
     public String getTimeLeaving() { return this.timeLeaving; }
 
+    public String getCarType() { return this.carType; }
+
     public void setLongitude (double longitude) { this.longitude = longitude; }
 
     public void setLatitude (double latitude) { this.latitude = latitude; }
@@ -59,6 +53,8 @@ public class AvailableSpot {
     public void setMinLeaving(int minLeaving) { this.minLeaving = minLeaving; }
 
     public void setTimeLeaving(String timeLeaving) { this.timeLeaving = timeLeaving; }
+
+    public void setCarType (String carType) { this.carType = carType; }
 
     private void setUserId() {
         FirebaseUser cUser;
