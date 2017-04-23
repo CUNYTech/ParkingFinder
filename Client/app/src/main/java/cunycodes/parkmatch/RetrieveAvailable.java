@@ -29,13 +29,15 @@ public class RetrieveAvailable {
     private HashMap<String, GeoLocation> availableSpots;
     private int totalAvailable;
     AvailableSpot selected;
+    String selectedKey;
     final private double searchRadius = 0.5; //search radius is in km
 
     public RetrieveAvailable (GeoLocation requested) {
         this.requested = requested;
         this.selected = new AvailableSpot();
-        this.availableSpots = new HashMap<String, GeoLocation>();
+        this.availableSpots = new HashMap<>();
         this.totalAvailable = 0;
+        this.selectedKey = "";
     }
 
     public void setSelected (AvailableSpot selected) {
@@ -117,11 +119,11 @@ public class RetrieveAvailable {
                     AlertDialog.Builder dialog = new AlertDialog.Builder(MapsActivity.instance())
                             .setTitle("No Parking Spots Found")
                             .setMessage("Please continue to wait or modify the location of your requested parking spot!")
-                            .setPositiveButton("Wait", new DialogInterface.OnClickListener() {
+                            .setNegativeButton("Wait", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                 }
                             })
-                            .setNegativeButton("New Spot", new DialogInterface.OnClickListener() {
+                            .setPositiveButton("New Spot", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     MapsActivity.searchingClicked = true;
                                     MapsActivity.leavingClicked = false;
@@ -138,18 +140,27 @@ public class RetrieveAvailable {
 
     public void displayRequestedSpot () {
         //adds the requested marker
-        Marker requestedSpot = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(requested.latitude, requested.longitude)).title("Requested").icon(BitmapDescriptorFactory.fromResource(R.drawable.mark2)));
+        final Marker requestedSpot = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(requested.latitude, requested.longitude)).title("Requested").icon(BitmapDescriptorFactory.fromResource(R.drawable.mark2)));
         requestedSpot.showInfoWindow();
         (MapsActivity.mMap).moveCamera(CameraUpdateFactory.newLatLng(requestedSpot.getPosition()));
         // Zoom in the Google Map
         (MapsActivity.mMap).animateCamera(CameraUpdateFactory.zoomTo(13));
+        (MapsActivity.mMap).setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                if (marker.getTitle().equals("Requested")) { // if marker source is clicked
+                    System.out.println("Requested marker clicked");
+                    requestedSpot.showInfoWindow();
+                }
+                return true;
+            }
+        });
     }
 
     public void displayAvailableSpot (String key, GeoLocation selected) {
-        final String availableKey = key;
+        selectedKey = key;
         //adds the available marker
         Marker availableSpot = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(selected.latitude, selected.longitude)).title("Available").icon(BitmapDescriptorFactory.fromResource(R.drawable.mark0)));
-
         (MapsActivity.mMap).animateCamera(CameraUpdateFactory.zoomTo(13));
 
         (MapsActivity.mMap).setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -157,17 +168,45 @@ public class RetrieveAvailable {
             public boolean onMarkerClick(Marker marker) {
                 if (marker.getTitle().equals("Available")) { // if marker source is clicked
                     System.out.println("Available marker clicked");
-                    //Set selected member variable to appropriate available spot location and display dialog once data is properly set
-                    setSelectedByMarkerClick(availableKey);
+                    //Get newly pressed marker key before updating address, time, and car type in dialog
+                    getMarkerKey(marker);
                 }
                 return true;
             }
         });
     }
 
+    private void getMarkerKey(Marker marker) {
+        final double lat = marker.getPosition().latitude, lng = marker.getPosition().longitude;
+        final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+        Query latQuery = mDatabase.child("available_spots").orderByChild("latitude").equalTo(lat);
+
+                latQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                            System.out.println(snapshot);
+                            AvailableSpot s = snapshot.getValue(AvailableSpot.class);
+                            if (s.getLongitude() == lng) {
+                                selectedKey = snapshot.getKey();
+                                System.out.println("Newly set key is "+selectedKey);
+                                //Set selected member variable to appropriate available spot location and display dialog once data is properly set
+                                setSelectedByMarkerClick(selectedKey);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        System.err.println(databaseError);
+                    }
+                });
+    }
+
     //Sets the member variable 'selected' equal to the instance of AvailableSpot that corresponds to the available spot indicated by the selected marker
     //before displaying appropriate dialog
     private void setSelectedByMarkerClick (final String key) {
+        System.out.println("In setSelected(), key chosen is "+key);
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         Query availQuery = mDatabase.child("available_spots").orderByKey().equalTo(key);
 
