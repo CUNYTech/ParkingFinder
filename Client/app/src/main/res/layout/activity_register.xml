@@ -39,7 +39,7 @@
         android:layout_below="@+id/editTextName"
         android:ems="10"
 
-         />
+        />
 
     <EditText
         android:id="@+id/editTextEmailAddress"
@@ -79,6 +79,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="15dp"
         android:textColor="#000000"
+        android:fontFamily="sans-serif"
         />
 
     <TextView
@@ -87,7 +88,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/registerButton"
         android:layout_margin="15dp"
-        android:text="Already Registered? Sign in here"
+        android:text="Already Registered? Sign In Here"
         android:textAlignment="center"
         android:textColor="#DEB182" />
 
