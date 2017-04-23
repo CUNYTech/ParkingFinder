@@ -237,7 +237,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
             // Zoom in the Google Map
             googleMap.animateCamera(CameraUpdateFactory.zoomTo(17));
-            googleMap.addMarker(new MarkerOptions().position(new LatLng(current_latitude, current_longitude)).title("You are here!").icon(BitmapDescriptorFactory.fromResource(R.drawable.mark)));
+            googleMap.addMarker(new MarkerOptions().position(new LatLng(current_latitude, current_longitude)).title("You are here!").icon(BitmapDescriptorFactory.fromResource(R.drawable.mark2)));
         }
     }
 
@@ -384,13 +384,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         userSelectedSpot = retrieveAvailableParkingSpots.getSelected();
 
-        String minuteFormat=String.format("%02d", userSelectedSpot.getMinLeaving());
+        String minuteFormat = String.format("%02d", userSelectedSpot.getMinLeaving());
 
-        int hourFormat=userSelectedSpot.getHourLeaving();
-        String AmPm="AM";
-        if(userSelectedSpot.getHourLeaving()>12){
-            hourFormat=hourFormat-12;
-            AmPm="PM";}
+        int hourFormat = userSelectedSpot.getHourLeaving();
+        String AmPm = "AM";
+        if(userSelectedSpot.getHourLeaving() > 12) {
+            hourFormat = hourFormat - 12;
+            AmPm = "PM";
+        }
 
         AlertDialog.Builder d = new AlertDialog.Builder(MapsActivity.instance());
         d.setTitle("Would you like to park at:")
