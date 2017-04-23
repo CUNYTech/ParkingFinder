@@ -498,7 +498,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.nav_account:
-                Toast.makeText(MapsActivity.this, "Account Settings", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MapsActivity.this, "Account Settings", Toast.LENGTH_SHORT).show();
+                Intent HelpIntent = new Intent(this, HelpActivity.class);
+                startActivity(HelpIntent);
                 return true;
             case R.id.nav_settings:
                 // opens App setting

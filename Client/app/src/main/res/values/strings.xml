@@ -94,4 +94,27 @@
     <string name="pref_ringtone_silent">Silent</string>
 
     <string name="pref_title_vibrate">Vibrate</string>
+    <string name="title_activity_help">HelpActivity</string>
+    <string name="large_text">
+        "Welcome to ParkMatch!\n\n"
+
+        "ParkMatch allows users to easily share when and where they are leaving their parking space "
+        "as well as to view spaces that are or will be available so that they can reach their "
+        "destination easily.\n\n"
+
+        "We created ParkMatch after hearing about a community of people in Washington Heights that "
+        "notified each other before they left their parking spot when in the neighborhood."
+        "Realizing that people are willing to give advanced notice of their departure knowing that "
+        "their effort will be returned, we created an Android Application that allows users to "
+        "easily share when and where they are leaving their parking space as well as to view spaces "
+        "that are or will be available at their destination.\n\n\n"
+
+        "HELPFUL TIPS TO GET MORE POINTS\n\n"
+
+        "Mark your spot available ahead of time."
+
+
+
+
+    </string>
 </resources>
