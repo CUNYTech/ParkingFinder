@@ -8,6 +8,7 @@ import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Criteria;
@@ -16,6 +17,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
@@ -25,7 +27,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.location.places.Place;
@@ -214,6 +215,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
+
+        CheckIfGPSIsenabled();
         // Enable MyLocation Layer of Google Map
         mMap.setMyLocationEnabled(true);
         // Get LocationManager object from System Service LOCATION_SERVICE
@@ -409,6 +412,37 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         retrieveAvailableParkingSpots.setSelected(null);
                     }
                 }).show();
+    }
+
+    public void CheckIfGPSIsenabled() {
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean AskForMyLocation = sharedPreferences.getBoolean("example_switch", true);
+        if (AskForMyLocation) {
+            if (!((LocationManager) this.getSystemService(this.LOCATION_SERVICE))
+                    .isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+
+                new AlertDialog.Builder(MapsActivity.this)
+                        .setTitle("GPS is not enabled.")
+                        .setMessage("Do you want to go to settings menu?")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                //prompt user to enable gps
+                                Intent callGPSSettingIntent = new Intent(
+                                        android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                startActivity(callGPSSettingIntent);
+                            }
+                        })
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        }).show();
+
+            } else {
+                //gps is enabled
+            }
+        }
     }
 
     //Function that writes to the database when either button is clicked

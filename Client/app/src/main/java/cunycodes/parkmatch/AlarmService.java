@@ -9,6 +9,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -21,7 +23,13 @@ public class AlarmService extends IntentService {
 
     @Override
     public void onHandleIntent(Intent intent) {
-        sendNotification("Do you Need more time?");
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean ShowNotification= sharedPreferences.getBoolean("notifications_new_message", true);
+
+        if(ShowNotification){
+
+            sendNotification("Do you Need more time?");
+        }
     }
 
     private void sendNotification(String msg) {
@@ -33,7 +41,7 @@ public class AlarmService extends IntentService {
                 new Intent(this, MapsActivity.class), 0);
 
         NotificationCompat.Builder alamNotificationBuilder = new NotificationCompat.Builder(
-                this).setContentTitle("Alarm").setSmallIcon(R.drawable.icon)
+                this).setContentTitle("Alarm").setSmallIcon(R.drawable.icon4)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(msg))
                 .setContentText(msg);
 
