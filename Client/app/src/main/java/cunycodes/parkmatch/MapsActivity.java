@@ -472,8 +472,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //Function that displays a dialog box confirming selected location
     public void SelectLocationMessage(final double lat,final double lng)  {
-        RequestedSpot x = new RequestedSpot();
-        String address = x.getAddress(lat,lng);
+        String address = getAddress(lat,lng);
        // GivesUserDirectionToRequestedSpot();
         AlertDialog.Builder d = new AlertDialog.Builder(MapsActivity.instance());
         d.setTitle("Would you like to park at:")
