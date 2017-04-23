@@ -21,7 +21,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         MapsActivity inst = MapsActivity.instance();
         //inst.setAlarmText("hi my name is james!");
 
-//        inst.NeedMoreTimeMessage();
+         inst.NeedMoreTimeMessage();
 
         //this will sound the alarm tone
         //this will sound the alarm once, if you wish to

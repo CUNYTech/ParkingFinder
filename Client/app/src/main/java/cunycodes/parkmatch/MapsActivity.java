@@ -401,10 +401,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     //Function that displays a dialog box confirming selected location
     public void SelectLocationMessage(final double lat, final double lng)  {
         String address = getAddress (lat, lng);
+
         userSelectedSpot = retrieveAvailableParkingSpots.getSelected();
+
+        String minuteFormat=String.format("%02d", userSelectedSpot.getMinLeaving());
+
+        int hourFormat=userSelectedSpot.getHourLeaving();
+        String AmPm="AM";
+        if(userSelectedSpot.getHourLeaving()>12){
+            hourFormat=hourFormat-12;
+            AmPm="PM";}
+
         AlertDialog.Builder d = new AlertDialog.Builder(MapsActivity.instance());
         d.setTitle("Would you like to park at:")
-                .setMessage(address+"?\n\nThe parking spot will be available at: "+userSelectedSpot.getTimeLeaving()+"\nCar type previously parked at this location: "+userSelectedSpot.getCarType())
+                .setMessage(address+"?\n\nThe parking spot will be available at: "+hourFormat+":"+minuteFormat+" "+AmPm+"\nCar type previously parked at this location: "+userSelectedSpot.getCarType())
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         //NAVIGATION WOULD GO HERE
@@ -473,6 +483,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void NeedMoreTimeMessage() {
         int hour=alarmHour;
         String AmPm="AM";
+        String minute=String.format("%02d", alarmMinute);
+
         if(alarmHour>12){
             hour=hour-12;
             AmPm="PM";
@@ -481,7 +493,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             dialogShownOnce = true;
             //final View v = findViewById(R.id.displayTimePicker);
             new AlertDialog.Builder(MapsActivity.this)
-                    .setTitle("You are set to leave at " + hour + ":" + alarmMinute +" "+AmPm+" " )
+                    .setTitle("You are set to leave at " + hour + ":" + minute +" "+AmPm+" " )
                     .setMessage("Do you need more time?")
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
