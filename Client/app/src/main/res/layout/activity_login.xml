@@ -85,7 +85,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="25dp"
         android:background="@drawable/rounded_button"
-        android:fontFamily="monospace"
         android:text="@string/action_sign_in"
         android:textStyle="bold"
         android:layout_below="@+id/password"
@@ -95,8 +94,6 @@
         android:id="@+id/textViewSignUp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
-        android:fontFamily="monospace"
         android:text="Not Registered? Sign up here"
         android:textAlignment="center"
         android:textColor="#DEB182"
