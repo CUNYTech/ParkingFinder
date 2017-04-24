@@ -936,11 +936,47 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             user.subPoints();
             String id = user.getId();
             mDatabase.child("users").child(id).child("points").setValue(user.getPoints());
+
+            //If user's point is < 1, disable the "Find A Spot" button else enable -Ousmane
+            Button SerchParkingButton = (Button) findViewById(R.id.SearchParking);
+            if(user.getPoints() < 1)
+            {
+                SerchParkingButton.setEnabled(false);
+                //Let users know they can't use the find a spot feature
+                WarningMessageToUser();
+            }
+            else
+            {
+                SerchParkingButton.setEnabled(true);
+            }
             return true;
         }
 
         return false;
     }
 
+    //Low point user notification
+    public void WarningMessageToUser () {
+        AlertDialog.Builder dialog;
+
+        dialog = new AlertDialog.Builder(this)
+                    .setTitle("Warning")
+                    .setMessage("Your point balance is low, you must Give A Spot in order to be able to use the Find A Spot feature.");
+
+        final AlertDialog alert = dialog.create();
+        alert.show();
+
+        new CountDownTimer(2500, 1000) {
+
+            @Override
+            public void onTick(long millisUntilFinished) {
+            }
+
+            @Override
+            public void onFinish() {
+                alert.dismiss();
+            }
+        }.start();
+    }
 
 }
