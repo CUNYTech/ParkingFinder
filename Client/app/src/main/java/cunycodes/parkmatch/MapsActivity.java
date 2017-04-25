@@ -418,6 +418,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean AskForMyLocation = sharedPreferences.getBoolean("example_switch", true);
+        /*
+        SharedPreferences sharedPrefList = PreferenceManager.getDefaultSharedPreferences(this);
+        String Carvalue = sharedPrefList.getString("Car_example_list", "default value");
+        */
         if (AskForMyLocation) {
             if (!((LocationManager) this.getSystemService(this.LOCATION_SERVICE))
                     .isProviderEnabled(LocationManager.GPS_PROVIDER)) {
