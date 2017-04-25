@@ -28,6 +28,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TimePicker;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
@@ -38,20 +43,67 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.Key;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.maps.android.PolyUtil;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
+
+    final JsonFactory JSON_FACTORY = new JacksonFactory();
+    private static final com.google.api.client.http.HttpTransport HTTP_TRANSPORT = null;
+    private List<LatLng> latLngs = new ArrayList<LatLng>();
+
+
+    //a variable in order to receive results for pacePicker
+    public static class PlacesResult {
+
+        @Key("predictions")
+        public List<Prediction> predictions;
+
+    }
+
+    public static class Prediction {
+        @Key("description")
+        public String description;
+
+        @Key("id")
+        public String id;
+
+    }
+
+    public static class DirectionsResult {
+        @Key("routes")
+        public List<Route> routes;
+    }
+
+    public static class Route {
+        @Key("overview_polyline")
+        public OverviewPolyLine overviewPolyLine;
+    }
+
+    public static class OverviewPolyLine {
+        @Key("points")
+        public String points;
+    }
 
     AlarmManager alarmManager;
     private PendingIntent pendingIntent;
@@ -402,8 +454,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         //NAVIGATION WOULD GO HERE
+                        NavigateUserToDestination(lat, lng);
                         //Make all other markers disappear?
-                        destinationReachedDialog (lat, lng);
+                      //  destinationReachedDialog (lat, lng);
                     }
                 })
                 .setNegativeButton("Next Spot", new DialogInterface.OnClickListener() {
@@ -412,6 +465,70 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         retrieveAvailableParkingSpots.setSelected(null);
                     }
                 }).show();
+    }
+
+    public void NavigateUserToDestination(double lat, double lon) {
+        //newLat and newLong represents the current location of the user
+        LatLng startLatLng = new LatLng(newLat, newLong);
+        LatLng endLatLng = new LatLng(lat, lon);
+
+        //Build a HTTP Request with Origin, Destination, and API key in order to generate a polyline on the map
+        StringBuilder Url = new StringBuilder();
+
+        //API Key for Google Direction API
+        String Key = "AIzaSyDX66N9_A0JYKXNEwcr0UnWVrrBymFegMI";
+
+        Url.append("https://maps.googleapis.com/maps/api/directions/json?origin=");
+        Url.append(Double.toString(startLatLng.latitude));
+        Url.append(",");
+        Url.append(Double.toString(startLatLng.longitude));
+        Url.append("&destination=");
+        Url.append(Double.toString(endLatLng.latitude));
+        Url.append(",");
+        Url.append(Double.toString(endLatLng.longitude));
+        Url.append("&key=");
+        Url.append(Key);
+
+        //The HTTP Request returns a JsonObject and code below allow to read the returned information
+        final JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, Url.toString(), null, new Response.Listener<JSONObject>() {
+
+            @Override
+            public void onResponse(JSONObject response) {
+
+                try {
+
+                    JSONArray routes = response.getJSONArray("routes");
+                    JSONObject routeInfo = routes.getJSONObject(0);
+
+                    JSONObject overview_polyline = routeInfo.getJSONObject("overview_polyline");
+                    String points = overview_polyline.getString("points");
+
+                    //Contains the set of polyline points
+                    List<LatLng> decodePath = PolyUtil.decode(points);
+
+                    //Draw the polyline on the map and sets color to Orange (to match our app theme)
+                    mMap.addPolyline(new PolylineOptions().addAll(decodePath).geodesic(true).color(0xffF57F17));
+
+
+                } catch (JSONException e) {
+                    Log.v("TEST_API_RESPONSE", "ERR: ");
+                }
+            }
+
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.v("TEST_API_RESPONSE", "ERR: " + error.getLocalizedMessage());
+            }
+        });
+
+        Volley.newRequestQueue(this).add(jsonRequest);
+        if ((startLatLng != null) && (endLatLng != null)) {
+            //Put place maker on the Origin and the Destination
+
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startLatLng, 17));
+        }
     }
 
     public void CheckIfGPSIsenabled() {
@@ -845,4 +962,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         return false;
     }
+
+
 }

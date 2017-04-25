@@ -161,7 +161,7 @@ public class RetrieveAvailable {
         selectedKey = key;
         //adds the available marker
         Marker availableSpot = (MapsActivity.mMap).addMarker(new MarkerOptions().position(new LatLng(selected.latitude, selected.longitude)).title("Available").icon(BitmapDescriptorFactory.fromResource(R.drawable.mark0)));
-        (MapsActivity.mMap).animateCamera(CameraUpdateFactory.zoomTo(13));
+        (MapsActivity.mMap).animateCamera(CameraUpdateFactory.zoomTo(17));
 
         (MapsActivity.mMap).setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
