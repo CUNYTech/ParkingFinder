@@ -20,6 +20,11 @@ import android.preference.RingtonePreference;
 import android.text.TextUtils;
 import android.view.MenuItem;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.List;
 
 /**
@@ -54,6 +59,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                         index >= 0
                                 ? listPreference.getEntries()[index]
                                 : null);
+
+                DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+                FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+
+                mDatabase.child("users").child(user.getUid()).child("carType").setValue(listPreference.getEntries()[index]);
 
             } else if (preference instanceof RingtonePreference) {
                 // For ringtone preferences, look up the correct display value
