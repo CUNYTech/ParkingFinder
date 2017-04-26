@@ -19,7 +19,7 @@
         android:title="@string/pref_title_display_name" />
 
     <ListPreference
-        android:id="@+id/pedro"
+        android:id="@+id/carTypeSelection"
         android:defaultValue="3"
         android:entries="@array/Car_example_list_titles"
         android:entryValues="@array/Car_example_list_values"

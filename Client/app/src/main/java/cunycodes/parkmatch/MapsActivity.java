@@ -123,6 +123,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     int ButtonSwitcher = 0;// so we can switch from gotoParking to displaySelectedPlaceFromPlacePicker  when calling onActivityResult
     public static Boolean leavingClicked = false, searchingClicked = false, moreTime = false;
     final int removeTime = 5; //remove spots that are this minute old
+    public LatLng currentLocation;
 
     public static MapsActivity instance() { return inst; }
 
@@ -288,6 +289,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             double current_longitude = myLocation.getLongitude();
             // Create a LatLng object for the current location
             LatLng latLng = new LatLng(current_latitude, current_longitude);
+            currentLocation = latLng;
             // Show the current location in Google Map
             googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
             // Zoom in the Google Map
@@ -435,7 +437,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //Function that displays a dialog box confirming selected location
     public void SelectLocationMessage(final double lat, final double lng)  {
-        String address = getAddress (lat, lng);
+        final String address = getAddress (lat, lng);
 
         userSelectedSpot = retrieveAvailableParkingSpots.getSelected();
 
@@ -449,14 +451,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         AlertDialog.Builder d = new AlertDialog.Builder(MapsActivity.instance());
-        d.setTitle("Would you like to park at:")
-                .setMessage(address+"?\n\nThe parking spot will be available at: "+hourFormat+":"+minuteFormat+" "+AmPm+"\nCar type previously parked at this location: "+userSelectedSpot.getCarType())
+        AlertDialog yes = d.setTitle("Would you like to park at:")
+                .setMessage(address + "?\n\nThe parking spot will be available at: " + hourFormat + ":" + minuteFormat + " " + AmPm + "\nCar type previously parked at this location: " + userSelectedSpot.getCarType())
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        //NAVIGATION WOULD GO HERE
                         NavigateUserToDestination(lat, lng);
-                        //Make all other markers disappear?
-                      //  destinationReachedDialog (lat, lng);
+                        new CountDownTimer(3000, 1000) {
+
+                            @Override
+                            public void onTick(long millisUntilFinished) {
+                            }
+
+                            @Override
+                            public void onFinish() {
+                                destinationReachedDialog (lat, lng);
+                            }
+                        }.start();
                     }
                 })
                 .setNegativeButton("Next Spot", new DialogInterface.OnClickListener() {
@@ -470,6 +480,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void NavigateUserToDestination(double lat, double lon) {
         //newLat and newLong represents the current location of the user
         LatLng startLatLng = new LatLng(newLat, newLong);
+        //LatLng startLatLng = currentLocation;
         LatLng endLatLng = new LatLng(lat, lon);
 
         //Build a HTTP Request with Origin, Destination, and API key in order to generate a polyline on the map
@@ -526,7 +537,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Volley.newRequestQueue(this).add(jsonRequest);
         if ((startLatLng != null) && (endLatLng != null)) {
             //Put place maker on the Origin and the Destination
-
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startLatLng, 17));
         }
     }
@@ -705,7 +715,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * rerouted to the landing page. If they were not, we will return them to the map to choose another
      * available space.
      */
-    private void destinationReachedDialog(final double lat, final double lng) {
+    public void destinationReachedDialog(final double lat, final double lng) {
         final AlertDialog.Builder d = new AlertDialog.Builder(MapsActivity.instance());
         d.setTitle("Destination reached! Did you find parking?")
                 .setNeutralButton("Yes", new DialogInterface.OnClickListener() {
@@ -962,6 +972,4 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         return false;
     }
-
-
 }
